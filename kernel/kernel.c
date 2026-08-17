@@ -5,7 +5,8 @@
  */
 
 
-/* Fonction de la console */
+#include "../system/config.h"
+
 
 void console_init(void);
 
@@ -18,17 +19,20 @@ void kernel_main(void)
 {
 
     /*
-     * Initialisation
-     * des services système
+     * Initialisation console
      */
 
     console_init();
 
 
     /*
-     * Boucle principale
-     * du kernel
+     * Ici plus tard :
+     * - mémoire
+     * - stockage
+     * - pilotes
+     * - sécurité
      */
+
 
     while (1)
     {
