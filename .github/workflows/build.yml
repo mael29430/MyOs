@@ -43,6 +43,24 @@ jobs:
           -o console.o
 
 
+      - name: Compiler mémoire
+        run: |
+          aarch64-linux-gnu-gcc \
+          -ffreestanding \
+          -nostdlib \
+          -c system/memory/memory.c \
+          -o memory.o
+
+
+      - name: Compiler stockage
+        run: |
+          aarch64-linux-gnu-gcc \
+          -ffreestanding \
+          -nostdlib \
+          -c system/storage/storage.c \
+          -o storage.o
+
+
       - name: Compiler boot.c
         run: |
           aarch64-linux-gnu-gcc \
@@ -67,6 +85,8 @@ jobs:
           echo ""
           echo "Kernel : OK"
           echo "Console : OK"
+          echo "Memory : OK"
+          echo "Storage : OK"
           echo "Boot : OK"
           echo "Entry : OK"
           echo ""
