@@ -12,7 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
+      - name: Vérifier linker
+        run: |
+          pwd
+          find . -name "linker*"
       - name: Télécharger MyOS
         uses: actions/checkout@v4
 
