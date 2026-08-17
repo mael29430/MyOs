@@ -127,6 +127,10 @@ jobs:
           syscall.o \
           device.o \
           -o myos.elf
+                - name: Vérifier le kernel créé
+        run: |
+          ls -lh myos.elf
+          file myos.elf
       - name: Vérification MyOS
         run: |
           echo "=============================="
