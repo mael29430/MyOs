@@ -1,53 +1,311 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>MyOS</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
+
 <body>
 
-    <main class="boot-screen">
 
-        <div class="logo">MyOS</div>
+    <!-- ========================= -->
+    <!-- ÉCRAN DE DÉMARRAGE -->
+    <!-- ========================= -->
 
-        <h1 class="welcome">Bonjour 👋</h1>
+    <section class="boot-screen" id="bootScreen">
+
+        <div class="logo">
+            MyOS
+        </div>
+
+        <h1 class="welcome">
+            Bonjour 👋
+        </h1>
 
         <p class="subtitle">
             Bienvenue sur votre système
         </p>
 
-        <button class="start-button" onclick="startMyOS()">
+        <button
+            class="start-button"
+            onclick="startMyOS()">
+
             Démarrer
+
         </button>
 
-        <div class="clock" id="clock">
+        <div
+            class="clock"
+            id="clock">
+
             00:00
+
         </div>
 
-    </main>
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- ÉCRAN D'ACCUEIL -->
+    <!-- ========================= -->
+
+    <section
+        class="home-screen"
+        id="homeScreen">
+
+
+        <!-- BARRE SUPÉRIEURE -->
+
+        <header class="top-bar">
+
+            <div class="system-name">
+                MyOS
+            </div>
+
+            <div id="homeClock">
+                00:00
+            </div>
+
+        </header>
+
+
+
+        <!-- APPLICATIONS -->
+
+        <main class="app-grid">
+
+
+            <!-- MODULES -->
+
+            <button
+                class="app"
+                onclick="openModule('modules')">
+
+                <span>🧩</span>
+
+                <strong>
+                    Modules
+                </strong>
+
+            </button>
+
+
+
+            <!-- RÉGLAGES -->
+
+            <button
+                class="app"
+                onclick="openModule('settings')">
+
+                <span>⚙️</span>
+
+                <strong>
+                    Réglages
+                </strong>
+
+            </button>
+
+
+
+            <!-- FICHIERS -->
+
+            <button
+                class="app"
+                onclick="openModule('files')">
+
+                <span>📁</span>
+
+                <strong>
+                    Fichiers
+                </strong>
+
+            </button>
+
+
+
+            <!-- À PROPOS -->
+
+            <button
+                class="app"
+                onclick="openModule('about')">
+
+                <span>ℹ️</span>
+
+                <strong>
+                    À propos
+                </strong>
+
+            </button>
+
+
+        </main>
+
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- JAVASCRIPT DE MYOS -->
+    <!-- ========================= -->
 
     <script>
+
+
+        /*
+        --------------------------------
+        RÉCUPÉRATION DES ÉLÉMENTS
+        --------------------------------
+        */
+
+        const bootScreen =
+            document.getElementById("bootScreen");
+
+        const homeScreen =
+            document.getElementById("homeScreen");
+
+
+
+        /*
+        --------------------------------
+        HORLOGE
+        --------------------------------
+        */
+
         function updateClock() {
+
             const now = new Date();
 
-            const hours = String(now.getHours()).padStart(2, "0");
-            const minutes = String(now.getMinutes()).padStart(2, "0");
 
-            document.getElementById("clock").textContent =
+            const hours =
+                String(now.getHours())
+                .padStart(2, "0");
+
+
+            const minutes =
+                String(now.getMinutes())
+                .padStart(2, "0");
+
+
+            document.getElementById("clock")
+                .textContent =
                 hours + ":" + minutes;
+
+
+            document.getElementById("homeClock")
+                .textContent =
+                hours + ":" + minutes;
+
         }
+
+
+
+        /*
+        --------------------------------
+        DÉMARRAGE DE MYOS
+        --------------------------------
+        */
 
         function startMyOS() {
-            alert("Bienvenue dans MyOS 🚀");
+
+
+            /*
+            On lance l'animation
+            de disparition
+            */
+
+            bootScreen.classList.add(
+                "boot-exit"
+            );
+
+
+            /*
+            On attend que
+            l'animation soit terminée
+            */
+
+            setTimeout(function() {
+
+
+                /*
+                On cache complètement
+                l'écran de démarrage
+                */
+
+                bootScreen.style.display =
+                    "none";
+
+
+                /*
+                On affiche l'écran
+                d'accueil
+                */
+
+                homeScreen.style.display =
+                    "block";
+
+
+                /*
+                On lance l'animation
+                d'arrivée
+                */
+
+                homeScreen.classList.add(
+                    "home-enter"
+                );
+
+
+            }, 900);
+
         }
 
+
+
+        /*
+        --------------------------------
+        OUVERTURE DES MODULES
+        --------------------------------
+        */
+
+        function openModule(module) {
+
+
+            alert(
+                "Module ouvert : " + module
+            );
+
+
+        }
+
+
+
+        /*
+        --------------------------------
+        LANCEMENT DE L'HORLOGE
+        --------------------------------
+        */
+
         updateClock();
-        setInterval(updateClock, 1000);
+
+
+        setInterval(
+            updateClock,
+            1000
+        );
+
+
     </script>
 
+
 </body>
+
 </html>
