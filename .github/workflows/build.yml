@@ -16,12 +16,16 @@ jobs:
       - name: Télécharger MyOS
         uses: actions/checkout@v4
 
-      - name: Installer les outils
+
+      - name: Installer les outils ARM64
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+          sudo apt-get install -y \
+          gcc-aarch64-linux-gnu \
+          binutils-aarch64-linux-gnu
 
-      - name: Compiler le kernel ARM64
+
+      - name: Compiler kernel.c
         run: |
           aarch64-linux-gnu-gcc \
           -ffreestanding \
@@ -29,16 +33,41 @@ jobs:
           -c kernel/kernel.c \
           -o kernel.o
 
-      - name: Compiler le point d'entrée
+
+      - name: Compiler console.c
+        run: |
+          aarch64-linux-gnu-gcc \
+          -ffreestanding \
+          -nostdlib \
+          -c kernel/console.c \
+          -o console.o
+
+
+      - name: Compiler boot.c
+        run: |
+          aarch64-linux-gnu-gcc \
+          -ffreestanding \
+          -nostdlib \
+          -c kernel/boot.c \
+          -o boot.o
+
+
+      - name: Compiler entry.S
         run: |
           aarch64-linux-gnu-as \
           kernel/entry.S \
           -o entry.o
 
-      - name: Vérification
+
+      - name: Vérification MyOS
         run: |
-          echo "======================"
-          echo "      MYOS ARM64"
-          echo "======================"
-          echo "Kernel compilé"
-          echo "Entry compilé"
+          echo "=============================="
+          echo "        MYOS KERNEL"
+          echo "=============================="
+          echo ""
+          echo "Kernel : OK"
+          echo "Console : OK"
+          echo "Boot : OK"
+          echo "Entry : OK"
+          echo ""
+          echo "Compilation terminée."
