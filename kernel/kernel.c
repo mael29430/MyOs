@@ -14,6 +14,8 @@ void memory_init(void);
 
 void storage_init(void);
 
+void task_init(void);
+
 
 
 /*
@@ -24,7 +26,7 @@ void kernel_main(void)
 {
 
     /*
-     * Démarrage des services système
+     * Initialisation des services système
      */
 
     console_init();
@@ -33,14 +35,13 @@ void kernel_main(void)
 
     storage_init();
 
+    task_init();
+
 
 
     /*
-     * Services actifs.
-     *
      * Plus tard :
-     * - réseau
-     * - sécurité
+     * - pilotes matériels
      * - interface graphique
      * - applications
      */
