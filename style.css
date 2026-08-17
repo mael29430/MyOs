@@ -588,3 +588,265 @@ body {
         scale(0.82);
 
 }
+/* =========================================
+   MYOS FLUID - EFFET VERRE
+   ========================================= */
+
+.home-screen::before {
+    content: "";
+
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    top: -120px;
+    left: -140px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(80, 190, 255, 0.25),
+            transparent 70%
+        );
+
+    filter: blur(40px);
+
+    pointer-events: none;
+
+    animation: fluidMove 8s ease-in-out infinite alternate;
+}
+
+
+.home-screen::after {
+    content: "";
+
+    position: absolute;
+
+    width: 380px;
+    height: 380px;
+
+    right: -130px;
+    bottom: 80px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(150, 100, 255, 0.22),
+            transparent 70%
+        );
+
+    filter: blur(50px);
+
+    pointer-events: none;
+
+    animation: fluidMove2 10s ease-in-out infinite alternate;
+}
+
+
+/* Mouvement très léger du liquide */
+
+@keyframes fluidMove {
+
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(120px, 80px);
+    }
+
+}
+
+
+@keyframes fluidMove2 {
+
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(-100px, -70px);
+    }
+
+}
+
+
+/* =========================================
+   VERRE DES ICÔNES
+   ========================================= */
+
+.app-icon {
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+/* reflet du verre */
+
+.app-icon::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -40%;
+
+    left: -30%;
+
+    width: 160%;
+
+    height: 80%;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent 30%,
+            rgba(255,255,255,0.16),
+            transparent 65%
+        );
+
+    transform:
+        rotate(-15deg);
+
+    pointer-events: none;
+
+}
+
+
+/* lumière interne */
+
+.app-icon::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 1px;
+
+    border-radius: inherit;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,0.22);
+
+    border-left:
+        1px solid
+        rgba(255,255,255,0.08);
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================
+   VERRE DU DOCK
+   ========================================= */
+
+.dock {
+
+    position: fixed;
+
+    overflow: hidden;
+
+}
+
+
+/* reflet du dock */
+
+.dock::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: -30%;
+
+    width: 160%;
+
+    height: 45%;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent,
+            rgba(255,255,255,0.10),
+            transparent
+        );
+
+    transform:
+        rotate(-3deg);
+
+    pointer-events: none;
+
+}
+
+
+/* lumière intérieure */
+
+.dock::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 1px;
+
+    border-radius: 25px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,0.18);
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================
+   WIDGET EN VERRE
+   ========================================= */
+
+.home-widget {
+
+    width: calc(100% - 40px);
+
+    max-width: 430px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    padding:
+        25px 20px;
+
+    border-radius: 30px;
+
+    background:
+        rgba(255,255,255,0.045);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.10);
+
+    backdrop-filter:
+        blur(25px)
+        saturate(130%);
+
+    -webkit-backdrop-filter:
+        blur(25px)
+        saturate(130%);
+
+    box-shadow:
+
+        0 20px 50px
+        rgba(0,0,0,0.22),
+
+        inset 0 1px 1px
+        rgba(255,255,255,0.12);
+
+}
