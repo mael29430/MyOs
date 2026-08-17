@@ -16,6 +16,10 @@ void storage_init(void);
 
 void task_init(void);
 
+void syscall_init(void);
+
+void device_init(void);
+
 
 
 /*
@@ -37,13 +41,21 @@ void kernel_main(void)
 
     task_init();
 
+    syscall_init();
+
+    device_init();
+
 
 
     /*
-     * Plus tard :
-     * - pilotes matériels
-     * - interface graphique
-     * - applications
+     * Services actifs :
+     *
+     * Console
+     * Mémoire
+     * Stockage
+     * Tâches
+     * Syscalls
+     * Périphériques
      */
 
 
