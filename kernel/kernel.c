@@ -10,6 +10,9 @@
 
 void console_init(void);
 
+void memory_init(void);
+
+
 
 /*
  * Point d'entrée du kernel
@@ -19,18 +22,21 @@ void kernel_main(void)
 {
 
     /*
-     * Initialisation console
+     * Initialisation des services
      */
 
     console_init();
 
+    memory_init();
+
+
 
     /*
-     * Ici plus tard :
-     * - mémoire
+     * Plus tard :
      * - stockage
+     * - réseau
      * - pilotes
-     * - sécurité
+     * - interface graphique
      */
 
 
