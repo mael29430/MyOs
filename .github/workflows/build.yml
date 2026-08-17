@@ -6,23 +6,29 @@ on:
       - main
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Télécharger MyOS
+      - name: Récupérer MyOS
         uses: actions/checkout@v4
 
-      - name: Vérifier les fichiers du kernel
+      - name: Installer GCC
         run: |
-          echo "================================"
-          echo "        MYOS KERNEL BUILD"
-          echo "================================"
-          echo ""
-          echo "Kernel trouvé :"
-          ls -la kernel
-          echo ""
-          echo "Build MyOS terminé."
+          sudo apt-get update
+          sudo apt-get install -y gcc
+
+      - name: Compiler kernel.c
+        run: |
+          gcc -Wall -Wextra -c kernel/kernel.c -o kernel.o
+
+      - name: Compiler boot.c
+        run: |
+          gcc -Wall -Wextra -c kernel/boot.c -o boot.o
+
+      - name: Vérifier la compilation
+        run: |
+          echo "MYOS KERNEL BUILD"
+          echo "Kernel : OK"
+          echo "Boot : OK"
+          echo "Compilation réussie !"
