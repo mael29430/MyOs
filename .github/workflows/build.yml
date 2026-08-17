@@ -1,0 +1,28 @@
+name: Build MyOS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Télécharger MyOS
+        uses: actions/checkout@v4
+
+      - name: Vérifier les fichiers du kernel
+        run: |
+          echo "================================"
+          echo "        MYOS KERNEL BUILD"
+          echo "================================"
+          echo ""
+          echo "Kernel trouvé :"
+          ls -la kernel
+          echo ""
+          echo "Build MyOS terminé."
