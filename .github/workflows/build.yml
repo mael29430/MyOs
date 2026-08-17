@@ -1,4 +1,4 @@
-name: Build MyOS
+name: Build MyOS Kernel
 
 on:
   push:
@@ -6,29 +6,39 @@ on:
       - main
 
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Récupérer MyOS
+
+      - name: Télécharger MyOS
         uses: actions/checkout@v4
 
-      - name: Installer GCC
+      - name: Installer les outils
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc
+          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
 
-      - name: Compiler kernel.c
+      - name: Compiler le kernel ARM64
         run: |
-          gcc -Wall -Wextra -c kernel/kernel.c -o kernel.o
+          aarch64-linux-gnu-gcc \
+          -ffreestanding \
+          -nostdlib \
+          -c kernel/kernel.c \
+          -o kernel.o
 
-      - name: Compiler boot.c
+      - name: Compiler le point d'entrée
         run: |
-          gcc -Wall -Wextra -c kernel/boot.c -o boot.o
+          aarch64-linux-gnu-as \
+          kernel/entry.S \
+          -o entry.o
 
-      - name: Vérifier la compilation
+      - name: Vérification
         run: |
-          echo "MYOS KERNEL BUILD"
-          echo "Kernel : OK"
-          echo "Boot : OK"
-          echo "Compilation réussie !"
+          echo "======================"
+          echo "      MYOS ARM64"
+          echo "======================"
+          echo "Kernel compilé"
+          echo "Entry compilé"
