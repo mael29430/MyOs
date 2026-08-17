@@ -25,64 +25,70 @@
 <body>
 
 
-    <!-- ==================================================
-         ÉCRAN DE DÉMARRAGE
-         ================================================== -->
+<!-- =====================================================
+     ÉCRAN DE DÉMARRAGE
+     ===================================================== -->
 
-    <section
-        class="boot-screen"
-        id="bootScreen"
+<section
+    class="boot-screen"
+    id="bootScreen"
+>
+
+    <div class="logo">
+        MyOS
+    </div>
+
+    <h1 class="welcome">
+        Bonjour
+    </h1>
+
+    <p class="subtitle">
+        Bienvenue sur votre système
+    </p>
+
+    <button
+        class="start-button"
+        id="startButton"
+        onclick="startMyOS()"
     >
+        Démarrer
+    </button>
 
-        <div class="logo">
-            MyOS
-        </div>
+    <div
+        class="clock"
+        id="clock"
+    >
+        00:00
+    </div>
 
-
-        <h1 class="welcome">
-            Bonjour
-        </h1>
-
-
-        <p class="subtitle">
-            Bienvenue sur votre système
-        </p>
+</section>
 
 
-        <button
-            class="start-button"
-            id="startButton"
-            onclick="startMyOS()"
-        >
-            Démarrer
-        </button>
 
-
-        <div
-            class="clock"
-            id="clock"
-        >
-            00:00
-        </div>
-
-    </section>
-
-<!-- ==================================================
+<!-- =====================================================
      ÉCRAN DE VERROUILLAGE
-     ================================================== -->
+     ===================================================== -->
 
 <section
     class="lock-screen"
     id="lockScreen"
 >
 
-    <div class="lock-time" id="lockTime">
+    <div
+        class="lock-time"
+        id="lockTime"
+    >
         00:00
     </div>
 
-    <div class="lock-date" id="lockDate">
+
+    <div
+        class="lock-date"
+        id="lockDate"
+    >
         Lundi 17 août
     </div>
+
 
     <div class="lock-content">
 
@@ -96,713 +102,738 @@
 
     </div>
 
+
     <div class="unlock-area">
 
-        <div class="unlock-arrow">
+        <button
+            class="unlock-arrow"
+            onclick="unlockMyOS()"
+            aria-label="Déverrouiller MyOS"
+        >
             ↑
-        </div>
+        </button>
 
         <div class="unlock-text">
-            Faites glisser vers le haut
+            Appuyez pour déverrouiller
         </div>
 
     </div>
 
 </section>
 
-    <!-- ==================================================
-         ÉCRAN D'ACCUEIL
-         ================================================== -->
 
-    <section
-        class="home-screen"
-        id="homeScreen"
-    >
 
+<!-- =====================================================
+     ÉCRAN D'ACCUEIL
+     ===================================================== -->
 
-        <!-- BARRE D'ÉTAT -->
+<section
+    class="home-screen"
+    id="homeScreen"
+>
 
-        <header class="status-bar">
 
-            <div id="phoneTime">
-                00:00
-            </div>
+    <!-- BARRE D'ÉTAT -->
 
+    <header class="status-bar">
 
-            <div class="status-icons">
-                ● ●
-            </div>
+        <div id="phoneTime">
+            00:00
+        </div>
 
-        </header>
+        <div class="status-icons">
+            ● ●
+        </div>
 
+    </header>
 
 
-        <!-- WIDGET -->
 
-        <section class="home-widget">
+    <!-- WIDGET PRINCIPAL -->
 
-            <div
-                class="widget-time"
-                id="bigTime"
-            >
-                00:00
-            </div>
+    <section class="home-widget">
 
+        <div
+            class="widget-time"
+            id="bigTime"
+        >
+            00:00
+        </div>
 
-            <div class="widget-date">
-                Lundi 17 août
-            </div>
+        <div class="widget-date">
+            Lundi 17 août
+        </div>
 
+        <div class="widget-weather">
+            23° • Clair
+        </div>
 
-            <div class="widget-weather">
-                23° • Clair
-            </div>
+    </section>
 
-        </section>
 
 
+    <!-- =================================================
+         APPLICATIONS
+         ================================================= -->
 
-        <!-- ==================================================
-             APPLICATIONS
-             ================================================== -->
+    <main class="phone-app-grid">
 
-        <main class="phone-app-grid">
 
+        <!-- CAMÉRA -->
 
-            <!-- CAMÉRA -->
+        <button
+            class="phone-app"
+            onclick="openModule('camera')"
+        >
 
-            <button
-                class="phone-app"
-                onclick="openModule('camera')"
-            >
-
-                <span class="app-icon">
-                    ◉
-                </span>
-
-                <span>
-                    Caméra
-                </span>
-
-            </button>
-
-
-
-            <!-- SÉCURITÉ -->
-
-            <button
-                class="phone-app"
-                onclick="openModule('security')"
-            >
-
-                <span class="app-icon">
-                    ◈
-                </span>
-
-                <span>
-                    Sécurité
-                </span>
-
-            </button>
-
-
-
-            <!-- MODULES -->
-
-            <button
-                class="phone-app"
-                onclick="openModule('modules')"
-            >
-
-                <span class="app-icon">
-                    ⬡
-                </span>
-
-                <span>
-                    Modules
-                </span>
-
-            </button>
-
-
-
-            <!-- FICHIERS -->
-
-            <button
-                class="phone-app"
-                onclick="openModule('files')"
-            >
-
-                <span class="app-icon">
-                    □
-                </span>
-
-                <span>
-                    Fichiers
-                </span>
-
-            </button>
-
-
-
-            <!-- RÉGLAGES -->
-
-            <button
-                class="phone-app"
-                onclick="openSettings()"
-            >
-
-                <span class="app-icon">
-                    ⚙
-                </span>
-
-                <span>
-                    Réglages
-                </span>
-
-            </button>
-
-
-
-            <!-- INTERNET -->
-
-            <button
-                class="phone-app"
-                onclick="openModule('internet')"
-            >
-
-                <span class="app-icon">
-                    ◎
-                </span>
-
-                <span>
-                    Internet
-                </span>
-
-            </button>
-
-
-
-            <!-- MUSIQUE -->
-
-            <button
-                class="phone-app"
-                onclick="openModule('music')"
-            >
-
-                <span class="app-icon">
-                    ♪
-                </span>
-
-                <span>
-                    Musique
-                </span>
-
-            </button>
-
-
-
-            <!-- STATISTIQUES -->
-
-            <button
-                class="phone-app"
-                onclick="openModule('stats')"
-            >
-
-                <span class="app-icon">
-                    ◌
-                </span>
-
-                <span>
-                    Stats
-                </span>
-
-            </button>
-
-
-        </main>
-
-
-
-        <!-- ==================================================
-             DOCK
-             ================================================== -->
-
-        <nav class="dock">
-
-
-            <button
-                onclick="openModule('phone')"
-                aria-label="Téléphone"
-            >
+            <span class="app-icon">
                 ◉
-            </button>
+            </span>
+
+            <span>
+                Caméra
+            </span>
+
+        </button>
 
 
-            <button
-                onclick="openModule('browser')"
-                aria-label="Navigateur"
-            >
-                ◎
-            </button>
+
+        <!-- SÉCURITÉ -->
+
+        <button
+            class="phone-app"
+            onclick="openModule('security')"
+        >
+
+            <span class="app-icon">
+                ◈
+            </span>
+
+            <span>
+                Sécurité
+            </span>
+
+        </button>
 
 
-            <button
-                onclick="openModule('messages')"
-                aria-label="Messages"
-            >
-                ▱
-            </button>
+
+        <!-- MODULES -->
+
+        <button
+            class="phone-app"
+            onclick="openModule('modules')"
+        >
+
+            <span class="app-icon">
+                ⬡
+            </span>
+
+            <span>
+                Modules
+            </span>
+
+        </button>
 
 
-            <button
-                onclick="openSettings()"
-                aria-label="Réglages"
-            >
+
+        <!-- FICHIERS -->
+
+        <button
+            class="phone-app"
+            onclick="openModule('files')"
+        >
+
+            <span class="app-icon">
+                □
+            </span>
+
+            <span>
+                Fichiers
+            </span>
+
+        </button>
+
+
+
+        <!-- RÉGLAGES -->
+
+        <button
+            class="phone-app"
+            onclick="openSettings()"
+        >
+
+            <span class="app-icon">
                 ⚙
-            </button>
+            </span>
 
-
-        </nav>
-
-
-    </section>
-
-
-
-    <!-- ==================================================
-         RÉGLAGES
-         ================================================== -->
-
-    <section
-        class="settings-screen"
-        id="settingsScreen"
-    >
-
-
-        <header class="settings-header">
-
-
-            <button
-                class="back-button"
-                onclick="closeSettings()"
-            >
-                ‹
-            </button>
-
-
-            <h1>
+            <span>
                 Réglages
-            </h1>
+            </span>
+
+        </button>
 
 
-        </header>
+
+        <!-- INTERNET -->
+
+        <button
+            class="phone-app"
+            onclick="openModule('internet')"
+        >
+
+            <span class="app-icon">
+                ◎
+            </span>
+
+            <span>
+                Internet
+            </span>
+
+        </button>
 
 
 
-        <main class="settings-content">
+        <!-- MUSIQUE -->
+
+        <button
+            class="phone-app"
+            onclick="openModule('music')"
+        >
+
+            <span class="app-icon">
+                ♪
+            </span>
+
+            <span>
+                Musique
+            </span>
+
+        </button>
 
 
-            <!-- APPARENCE -->
 
-            <div class="settings-card">
+        <!-- STATISTIQUES -->
 
-                <div>
+        <button
+            class="phone-app"
+            onclick="openModule('stats')"
+        >
 
-                    <div class="setting-title">
-                        Apparence
-                    </div>
+            <span class="app-icon">
+                ◌
+            </span>
 
-                    <div class="setting-description">
-                        Interface MyOS Fluid
-                    </div>
+            <span>
+                Stats
+            </span>
 
+        </button>
+
+
+    </main>
+
+
+
+    <!-- =================================================
+         DOCK
+         ================================================= -->
+
+    <nav class="dock">
+
+
+        <button
+            onclick="openModule('phone')"
+            aria-label="Téléphone"
+        >
+            ◉
+        </button>
+
+
+        <button
+            onclick="openModule('browser')"
+            aria-label="Navigateur"
+        >
+            ◎
+        </button>
+
+
+        <button
+            onclick="openModule('messages')"
+            aria-label="Messages"
+        >
+            ▱
+        </button>
+
+
+        <button
+            onclick="openSettings()"
+            aria-label="Réglages"
+        >
+            ⚙
+        </button>
+
+
+    </nav>
+
+
+</section>
+
+
+
+<!-- =====================================================
+     APPLICATION RÉGLAGES
+     ===================================================== -->
+
+<section
+    class="settings-screen"
+    id="settingsScreen"
+>
+
+
+    <header class="settings-header">
+
+
+        <button
+            class="back-button"
+            onclick="closeSettings()"
+        >
+            ‹
+        </button>
+
+
+        <h1>
+            Réglages
+        </h1>
+
+
+    </header>
+
+
+
+    <main class="settings-content">
+
+
+        <!-- APPARENCE -->
+
+        <div class="settings-card">
+
+            <div>
+
+                <div class="setting-title">
+                    Apparence
+                </div>
+
+                <div class="setting-description">
+                    Interface MyOS Fluid
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ANIMATIONS -->
+
+        <div class="settings-card">
+
+
+            <div>
+
+                <div class="setting-title">
+                    Animations
+                </div>
+
+                <div class="setting-description">
+                    Activer les animations de MyOS
                 </div>
 
             </div>
 
 
+            <label class="switch">
 
-            <!-- ANIMATIONS -->
+                <input
+                    type="checkbox"
+                    id="animationToggle"
+                    checked
+                    onchange="changeAnimations()"
+                >
 
-            <div class="settings-card">
+                <span class="slider"></span>
+
+            </label>
 
 
-                <div>
+        </div>
 
-                    <div class="setting-title">
-                        Animations
-                    </div>
 
-                    <div class="setting-description">
-                        Activer les animations de MyOS
-                    </div>
 
+        <!-- SYSTÈME -->
+
+        <div class="settings-card">
+
+
+            <div>
+
+                <div class="setting-title">
+                    Système
                 </div>
 
-
-
-                <label class="switch">
-
-
-                    <input
-                        type="checkbox"
-                        id="animationToggle"
-                        checked
-                        onchange="changeAnimations()"
-                    >
-
-
-                    <span class="slider"></span>
-
-
-                </label>
-
+                <div class="setting-description">
+                    MyOS version 0.5
+                </div>
 
             </div>
 
 
-
-            <!-- SYSTÈME -->
-
-            <div class="settings-card">
+        </div>
 
 
-                <div>
-
-                    <div class="setting-title">
-                        Système
-                    </div>
-
-                    <div class="setting-description">
-                        MyOS version 0.5
-                    </div>
-
-                </div>
+    </main>
 
 
-            </div>
-
-
-        </main>
-
-
-    </section>
+</section>
 
 
 
-    <!-- ==================================================
-         JAVASCRIPT MYOS
-         ================================================== -->
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
 
-    <script>
-
-
-        /* =================================================
-           ÉLÉMENTS
-           ================================================= */
+<script>
 
 
-        const bootScreen =
-            document.getElementById("bootScreen");
+/* =====================================================
+   ÉLÉMENTS PRINCIPAUX
+   ===================================================== */
 
 
-        const homeScreen =
-            document.getElementById("homeScreen");
+const bootScreen =
+    document.getElementById("bootScreen");
 
 
-        const settingsScreen =
-            document.getElementById(
-                "settingsScreen"
-            );
+const homeScreen =
+    document.getElementById("homeScreen");
 
 
-        const startButton =
-            document.getElementById(
-                "startButton"
-            );
+const lockScreen =
+    document.getElementById("lockScreen");
 
 
-
-        /* =================================================
-           HORLOGE
-           ================================================= */
+const settingsScreen =
+    document.getElementById("settingsScreen");
 
 
-        function updateClock() {
-
-
-            const now = new Date();
-
-
-            const hours =
-                String(now.getHours())
-                .padStart(2, "0");
-
-
-            const minutes =
-                String(now.getMinutes())
-                .padStart(2, "0");
-
-
-            const time =
-                hours + ":" + minutes;
+const startButton =
+    document.getElementById("startButton");
 
 
 
-            document.getElementById("clock")
-                .textContent = time;
+/* =====================================================
+   HORLOGE
+   ===================================================== */
 
 
-            document.getElementById("phoneTime")
-                .textContent = time;
+function updateClock() {
+
+    const now = new Date();
 
 
-            document.getElementById("bigTime")
-                .textContent = time;
+    const hours =
+        String(now.getHours())
+        .padStart(2, "0");
 
 
-        }
+    const minutes =
+        String(now.getMinutes())
+        .padStart(2, "0");
 
 
-        updateClock();
+    const time =
+        hours + ":" + minutes;
 
 
-        setInterval(
-            updateClock,
-            1000
+    document.getElementById("clock")
+        .textContent = time;
+
+
+    document.getElementById("phoneTime")
+        .textContent = time;
+
+
+    document.getElementById("bigTime")
+        .textContent = time;
+
+
+    document.getElementById("lockTime")
+        .textContent = time;
+
+
+
+    /* Date */
+
+    const dateOptions = {
+
+        weekday: "long",
+
+        day: "numeric",
+
+        month: "long"
+
+    };
+
+
+    document.getElementById("lockDate")
+        .textContent =
+        now.toLocaleDateString(
+            "fr-FR",
+            dateOptions
+        );
+
+}
+
+
+updateClock();
+
+
+setInterval(
+    updateClock,
+    1000
+);
+
+
+
+/* =====================================================
+   DÉMARRAGE DE MYOS
+   ===================================================== */
+
+
+function startMyOS() {
+
+
+    /* Empêche les doubles clics */
+
+    startButton.disabled = true;
+
+
+    bootScreen.style.pointerEvents =
+        "none";
+
+
+    /* Prépare l'écran de verrouillage */
+
+    lockScreen.style.display =
+        "flex";
+
+
+    lockScreen.classList.add(
+        "lock-enter"
+    );
+
+
+    /* Animation de sortie */
+
+    bootScreen.classList.add(
+        "boot-exit"
+    );
+
+
+    /*
+     * Après l'animation,
+     * l'écran Bonjour est
+     * complètement supprimé.
+     */
+
+    setTimeout(function() {
+
+        bootScreen.remove();
+
+    }, 900);
+
+}
+
+
+
+/* =====================================================
+   DÉVERROUILLAGE
+   ===================================================== */
+
+
+function unlockMyOS() {
+
+
+    lockScreen.classList.add(
+        "lock-exit"
+    );
+
+
+    setTimeout(function() {
+
+
+        lockScreen.style.display =
+            "none";
+
+
+        homeScreen.style.display =
+            "block";
+
+
+        homeScreen.classList.remove(
+            "home-enter"
         );
 
 
+        void homeScreen.offsetWidth;
 
-        /* =================================================
-           DÉMARRAGE DE MYOS
-           ================================================= */
 
+        homeScreen.classList.add(
+            "home-enter"
+        );
 
-        function startMyOS() {
 
+    }, 650);
 
-            /*
-             * Empêche plusieurs clics
-             */
+}
 
-            startButton.disabled = true;
 
 
-            /*
-             * Empêche les interactions
-             * avec l'ancien écran
-             */
+/* =====================================================
+   RÉGLAGES
+   ===================================================== */
 
-            bootScreen.style.pointerEvents =
-                "none";
 
+function openSettings() {
 
-            /*
-             * Prépare l'écran d'accueil
-             */
 
-            homeScreen.style.display =
-                "block";
+    homeScreen.style.display =
+        "none";
 
 
-            /*
-             * Lance son animation
-             */
+    settingsScreen.style.display =
+        "block";
 
-            homeScreen.classList.add(
-                "home-enter"
-            );
 
+    settingsScreen.classList.remove(
+        "screen-enter"
+    );
 
-            /*
-             * Lance l'animation de
-             * disparition de l'ancien écran
-             */
 
-            bootScreen.classList.add(
-                "boot-exit"
-            );
+    void settingsScreen.offsetWidth;
 
 
-            /*
-             * Une fois l'animation terminée,
-             * on supprime complètement
-             * l'écran de démarrage.
-             */
+    settingsScreen.classList.add(
+        "screen-enter"
+    );
 
-            setTimeout(function() {
+}
 
 
-                bootScreen.remove();
 
+/* =====================================================
+   FERMER LES RÉGLAGES
+   ===================================================== */
 
-            }, 900);
 
+function closeSettings() {
 
-        }
 
+    settingsScreen.style.display =
+        "none";
 
 
-        /* =================================================
-           OUVRIR LES RÉGLAGES
-           ================================================= */
+    homeScreen.style.display =
+        "block";
 
 
-        function openSettings() {
+}
 
 
-            homeScreen.style.display =
-                "none";
 
+/* =====================================================
+   ANIMATIONS
+   ===================================================== */
 
-            settingsScreen.style.display =
-                "block";
 
+function changeAnimations() {
 
-            settingsScreen.classList.remove(
-                "screen-enter"
-            );
 
+    const toggle =
+        document.getElementById(
+            "animationToggle"
+        );
 
-            /*
-             * Force le navigateur
-             * à recalculer l'animation.
-             */
 
-            void settingsScreen.offsetWidth;
+    const enabled =
+        toggle.checked;
 
 
-            settingsScreen.classList.add(
-                "screen-enter"
-            );
+    localStorage.setItem(
+        "myos_animations",
+        enabled
+    );
 
 
-        }
+    document.body.classList.toggle(
+        "no-animations",
+        !enabled
+    );
 
+}
 
 
-        /* =================================================
-           FERMER LES RÉGLAGES
-           ================================================= */
 
+/* =====================================================
+   CHARGEMENT DES PARAMÈTRES
+   ===================================================== */
 
-        function closeSettings() {
 
+const savedAnimations =
+    localStorage.getItem(
+        "myos_animations"
+    );
 
-            settingsScreen.style.display =
-                "none";
 
+if (
+    savedAnimations !== null
+) {
 
-            homeScreen.style.display =
-                "block";
 
+    const enabled =
+        savedAnimations === "true";
 
-            homeScreen.classList.remove(
-                "home-enter"
-            );
 
+    document.getElementById(
+        "animationToggle"
+    ).checked = enabled;
 
-        }
 
+    document.body.classList.toggle(
+        "no-animations",
+        !enabled
+    );
 
+}
 
-        /* =================================================
-           RÉGLAGE DES ANIMATIONS
-           ================================================= */
 
 
-        function changeAnimations() {
+/* =====================================================
+   AUTRES MODULES
+   ===================================================== */
 
 
-            const toggle =
-                document.getElementById(
-                    "animationToggle"
-                );
+function openModule(module) {
 
 
-            const enabled =
-                toggle.checked;
+    alert(
+        "MyOS\n\nModule : " + module
+    );
 
 
-            /*
-             * Sauvegarde le choix
-             */
+}
 
-            localStorage.setItem(
-                "myos_animations",
-                enabled
-            );
 
-
-            /*
-             * Active ou désactive
-             * les animations
-             */
-
-            document.body.classList.toggle(
-                "no-animations",
-                !enabled
-            );
-
-
-        }
-
-
-
-        /* =================================================
-           CHARGEMENT DES PARAMÈTRES
-           ================================================= */
-
-
-        const savedAnimations =
-            localStorage.getItem(
-                "myos_animations"
-            );
-
-
-        if (
-            savedAnimations !== null
-        ) {
-
-
-            const enabled =
-                savedAnimations === "true";
-
-
-            document.getElementById(
-                "animationToggle"
-            ).checked = enabled;
-
-
-            document.body.classList.toggle(
-                "no-animations",
-                !enabled
-            );
-
-
-        }
-
-
-
-        /* =================================================
-           AUTRES MODULES
-           ================================================= */
-
-
-        function openModule(module) {
-
-
-            alert(
-                "MyOS\n\nModule : " + module
-            );
-
-
-        }
-
-
-    </script>
+</script>
 
 
 </body>
