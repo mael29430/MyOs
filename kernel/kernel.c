@@ -1,14 +1,21 @@
 /*
  * MyOS Kernel
- * Premier prototype du noyau
+ *
+ * Premier noyau expérimental ARM64.
  */
 
 void kernel_main(void)
 {
     /*
-     * Point d'entrée du kernel MyOS.
+     * Point d'entrée du kernel.
      *
-     * Pour le moment, nous ne faisons
-     * qu'indiquer que le kernel a démarré.
+     * Le code sera développé progressivement.
      */
+
+    while (1)
+    {
+        /*
+         * Le kernel reste actif.
+         */
+    }
 }
