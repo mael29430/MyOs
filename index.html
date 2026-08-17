@@ -4,17 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyOS</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <h1>MyOS</h1>
+    <main class="boot-screen">
 
-    <h2>Bonjour 👋</h2>
+        <div class="logo">MyOS</div>
 
-    <p>Bienvenue sur MyOS</p>
+        <h1 class="welcome">Bonjour 👋</h1>
 
-    <button>Commencer</button>
+        <p class="subtitle">
+            Bienvenue sur votre système
+        </p>
+
+        <button class="start-button" onclick="startMyOS()">
+            Démarrer
+        </button>
+
+        <div class="clock" id="clock">
+            00:00
+        </div>
+
+    </main>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+
+            const hours = String(now.getHours()).padStart(2, "0");
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+
+            document.getElementById("clock").textContent =
+                hours + ":" + minutes;
+        }
+
+        function startMyOS() {
+            alert("Bienvenue dans MyOS 🚀");
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
 
 </body>
 </html>
