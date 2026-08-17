@@ -103,7 +103,20 @@ jobs:
           kernel/entry.S \
           -o entry.o
 
-
+      - name: Créer le kernel MyOS
+        run: |
+          aarch64-linux-gnu-ld \
+          -T kernel/linker.ld \
+          entry.o \
+          boot.o \
+          kernel.o \
+          console.o \
+          memory.o \
+          storage.o \
+          task.o \
+          syscall.o \
+          device.o \
+          -o myos.elf
       - name: Vérification MyOS
         run: |
           echo "=============================="
