@@ -1,151 +1,406 @@
+/* =====================================================
+   MYOS FLUID
+   Design system
+   ===================================================== */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+:root {
+    --background: #070a0f;
+    --surface: rgba(255, 255, 255, 0.07);
+    --surface-strong: rgba(255, 255, 255, 0.11);
+    --border: rgba(255, 255, 255, 0.13);
+    --text: #f5f7fa;
+    --secondary: rgba(245, 247, 250, 0.58);
+    --accent: #8fdcff;
+}
+
+
+/* =====================================================
+   BASE
+   ===================================================== */
+
 body {
-    font-family: Arial, sans-serif;
-    background: #080b12;
-    color: white;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 
-.boot-screen {
-    text-align: center;
-    width: 100%;
-    max-width: 500px;
-    padding: 30px;
-}
+    background:
+        radial-gradient(
+            circle at 20% 10%,
+            rgba(100, 180, 255, 0.12),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(150, 100, 255, 0.10),
+            transparent 35%
+        ),
+        var(--background);
 
-.logo {
-    font-size: 48px;
-    font-weight: bold;
-    margin-bottom: 30px;
-}
+    color: var(--text);
 
-.welcome {
-    font-size: 28px;
-    margin-bottom: 12px;
-}
-
-.subtitle {
-    color: #aeb6c4;
-    margin-bottom: 40px;
-}
-
-.start-button {
-    background: white;
-    color: #080b12;
-    border: none;
-    border-radius: 12px;
-    padding: 15px 45px;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-.start-button:active {
-    transform: scale(0.96);
-}
-
-.clock {
-    margin-top: 50px;
-    color: #aeb6c4;
-    font-size: 16px;
-}
-.boot-exit {
-    animation: bootExit 0.9s ease forwards;
-}
-
-@keyframes bootExit {
-
-    0% {
-        opacity: 1;
-        transform: scale(1);
-        filter: blur(0);
-    }
-
-    60% {
-        opacity: 0.7;
-        transform: scale(1.08);
-        filter: blur(3px);
-    }
-
-    100% {
-        opacity: 0;
-        transform: scale(1.25);
-        filter: blur(15px);
-    }
-}
-/* =========================
-   MYOS PHONE HOME
-   ========================= */
-
-.home-screen {
-    display: none;
-    width: 100%;
     min-height: 100vh;
-    position: relative;
+
     overflow: hidden;
 }
 
 
-/* BARRE D'ÉTAT */
+/* =====================================================
+   ÉCRAN DE DÉMARRAGE
+   ===================================================== */
 
-.status-bar {
+.boot-screen {
+    position: fixed;
+
+    inset: 0;
+
     display: flex;
-    justify-content: space-between;
+
+    flex-direction: column;
+
+    justify-content: center;
+
     align-items: center;
 
-    padding: 18px 22px;
+    text-align: center;
 
-    font-size: 15px;
-    font-weight: bold;
+    padding: 30px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(100, 190, 255, 0.12),
+            transparent 45%
+        );
+
+    z-index: 10;
 }
 
+
+.logo {
+    font-size: 52px;
+
+    font-weight: 700;
+
+    letter-spacing: -2px;
+
+    margin-bottom: 35px;
+
+    background:
+        linear-gradient(
+            120deg,
+            #ffffff,
+            #9edfff
+        );
+
+    -webkit-background-clip: text;
+
+    background-clip: text;
+
+    color: transparent;
+
+    text-shadow:
+        0 0 35px rgba(130, 210, 255, 0.18);
+}
+
+
+.welcome {
+    font-size: 30px;
+
+    font-weight: 500;
+
+    margin-bottom: 10px;
+}
+
+
+.subtitle {
+    color: var(--secondary);
+
+    font-size: 15px;
+
+    margin-bottom: 40px;
+}
+
+
+/* =====================================================
+   BOUTON DÉMARRER
+   ===================================================== */
+
+.start-button {
+
+    padding: 15px 48px;
+
+    border-radius: 18px;
+
+    border: 1px solid
+        rgba(255, 255, 255, 0.18);
+
+    background:
+        rgba(255, 255, 255, 0.10);
+
+    backdrop-filter: blur(18px);
+
+    -webkit-backdrop-filter: blur(18px);
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.30),
+        inset 0 1px 1px
+        rgba(255, 255, 255, 0.15);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.start-button:hover {
+
+    background:
+        rgba(255, 255, 255, 0.15);
+
+    transform:
+        translateY(-2px);
+
+}
+
+
+.start-button:active {
+
+    transform:
+        scale(0.94);
+
+}
+
+
+/* =====================================================
+   HORLOGE
+   ===================================================== */
+
+.clock {
+
+    margin-top: 45px;
+
+    color: var(--secondary);
+
+    font-size: 15px;
+
+    letter-spacing: 1px;
+}
+
+
+/* =====================================================
+   ANIMATION DE SORTIE
+   ===================================================== */
+
+.boot-exit {
+
+    animation:
+        bootExit 0.9s
+        cubic-bezier(0.7, 0, 0.2, 1)
+        forwards;
+
+}
+
+
+@keyframes bootExit {
+
+    0% {
+
+        opacity: 1;
+
+        transform:
+            scale(1);
+
+        filter:
+            blur(0);
+
+    }
+
+    55% {
+
+        opacity: 0.75;
+
+        transform:
+            scale(1.06);
+
+        filter:
+            blur(3px);
+
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            scale(1.18);
+
+        filter:
+            blur(18px);
+
+    }
+
+}
+
+
+/* =====================================================
+   ÉCRAN D'ACCUEIL
+   ===================================================== */
+
+.home-screen {
+
+    display: none;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    position: relative;
+
+    overflow: hidden;
+
+    animation:
+        homeEnter 0.8s
+        cubic-bezier(0.2, 0.8, 0.2, 1)
+        forwards;
+}
+
+
+@keyframes homeEnter {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            scale(0.94);
+
+        filter:
+            blur(10px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            scale(1);
+
+        filter:
+            blur(0);
+
+    }
+
+}
+
+
+/* =====================================================
+   BARRE D'ÉTAT
+   ===================================================== */
+
+.status-bar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding:
+        18px 22px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
 .status-icons {
+
+    opacity: 0.8;
+
     letter-spacing: 5px;
 }
 
 
-/* WIDGET */
+/* =====================================================
+   WIDGET
+   ===================================================== */
 
 .home-widget {
+
     text-align: center;
-    padding-top: 20px;
-    margin-bottom: 35px;
+
+    padding-top: 22px;
+
+    margin-bottom: 30px;
 }
+
 
 .widget-time {
+
     font-size: 58px;
+
     font-weight: 200;
+
+    letter-spacing: -2px;
+
 }
+
 
 .widget-date {
-    color: #aeb6c4;
-    margin-top: 5px;
+
+    color: var(--secondary);
+
+    margin-top: 7px;
+
+    font-size: 14px;
+
 }
+
 
 .widget-weather {
-    margin-top: 15px;
-    font-size: 18px;
+
+    margin-top: 14px;
+
+    font-size: 15px;
+
+    color: var(--secondary);
 }
 
 
-/* APPLICATIONS */
+/* =====================================================
+   GRILLE DES APPLICATIONS
+   ===================================================== */
 
 .phone-app-grid {
+
     display: grid;
 
     grid-template-columns:
         repeat(4, 1fr);
 
-    gap: 25px 12px;
+    gap:
+        25px 12px;
 
-    padding: 15px 20px;
+    padding:
+        15px 20px;
 
     max-width: 500px;
 
@@ -154,11 +409,12 @@ body {
 
 
 .phone-app {
+
     background: transparent;
 
     border: none;
 
-    color: white;
+    color: var(--text);
 
     display: flex;
 
@@ -166,114 +422,169 @@ body {
 
     align-items: center;
 
-    gap: 7px;
+    gap: 8px;
 
-    font-size: 12px;
+    font-size: 11px;
 
     cursor: pointer;
+
 }
 
 
 .app-icon {
+
     width: 58px;
+
     height: 58px;
 
     display: flex;
 
-    justify-content: center;
     align-items: center;
 
-    font-size: 30px;
+    justify-content: center;
 
-    background: #171d29;
+    border-radius: 19px;
 
-    border-radius: 17px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.12),
+            rgba(255,255,255,0.04)
+        );
+
+    border:
+        1px solid var(--border);
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
 
     box-shadow:
-        0 8px 20px rgba(0,0,0,0.25);
+
+        0 10px 25px
+        rgba(0,0,0,0.25),
+
+        inset 0 1px 1px
+        rgba(255,255,255,0.12);
+
+    font-size: 27px;
 
     transition:
-        transform 0.15s,
-        background 0.15s;
+        transform 0.18s ease,
+        background 0.18s ease;
+}
+
+
+.phone-app:hover .app-icon {
+
+    transform:
+        translateY(-3px);
+
+    background:
+        rgba(255,255,255,0.13);
+
 }
 
 
 .phone-app:active .app-icon {
-    transform: scale(0.85);
-    background: #252d3d;
+
+    transform:
+        scale(0.84);
+
 }
 
 
-/* DOCK */
+/* =====================================================
+   DOCK
+   ===================================================== */
 
 .dock {
+
     position: fixed;
 
     bottom: 18px;
 
     left: 50%;
 
-    transform: translateX(-50%);
+    transform:
+        translateX(-50%);
 
-    width: calc(100% - 35px);
+    width:
+        calc(100% - 35px);
 
     max-width: 430px;
 
-    padding: 12px;
+    padding: 11px;
 
     display: flex;
 
     justify-content: space-around;
 
-    background: rgba(30, 36, 48, 0.85);
+    background:
+        rgba(255,255,255,0.07);
 
-    backdrop-filter: blur(20px);
+    border:
+        1px solid
+        rgba(255,255,255,0.13);
 
-    border-radius: 25px;
+    backdrop-filter:
+        blur(30px)
+        saturate(140%);
+
+    -webkit-backdrop-filter:
+        blur(30px)
+        saturate(140%);
+
+    border-radius: 26px;
 
     box-shadow:
-        0 10px 35px rgba(0,0,0,0.35);
+
+        0 18px 45px
+        rgba(0,0,0,0.40),
+
+        inset 0 1px 1px
+        rgba(255,255,255,0.12);
 }
 
 
 .dock button {
+
     width: 52px;
+
     height: 52px;
 
     border: none;
 
-    border-radius: 16px;
+    border-radius: 17px;
 
-    background: transparent;
+    background:
+        rgba(255,255,255,0.04);
 
-    font-size: 26px;
+    color: white;
+
+    font-size: 23px;
 
     cursor: pointer;
 
     transition:
-        transform 0.15s;
+        transform 0.18s ease,
+        background 0.18s ease;
+}
+
+
+.dock button:hover {
+
+    background:
+        rgba(255,255,255,0.10);
+
 }
 
 
 .dock button:active {
-    transform: scale(0.8);
-}
 
-.home-enter {
-    animation: homeEnter 0.8s ease forwards;
-}
+    transform:
+        scale(0.82);
 
-@keyframes homeEnter {
-
-    0% {
-        opacity: 0;
-        transform: scale(0.92);
-        filter: blur(10px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1);
-        filter: blur(0);
-    }
 }
