@@ -103,18 +103,19 @@
     </div>
 
 
+    <!-- ZONE DE GESTE -->
+
     <div class="unlock-area">
 
-        <button
+        <div
             class="unlock-arrow"
-            onclick="unlockMyOS()"
-            aria-label="Déverrouiller MyOS"
+            id="unlockHandle"
         >
             ↑
-        </button>
+        </div>
 
         <div class="unlock-text">
-            Appuyez pour déverrouiller
+            Faites glisser vers le haut
         </div>
 
     </div>
@@ -149,7 +150,7 @@
 
 
 
-    <!-- WIDGET PRINCIPAL -->
+    <!-- WIDGET -->
 
     <section class="home-widget">
 
@@ -437,7 +438,6 @@
 
         <div class="settings-card">
 
-
             <div>
 
                 <div class="setting-title">
@@ -473,7 +473,6 @@
 
         <div class="settings-card">
 
-
             <div>
 
                 <div class="setting-title">
@@ -486,7 +485,6 @@
 
             </div>
 
-
         </div>
 
 
@@ -498,14 +496,14 @@
 
 
 <!-- =====================================================
-     JAVASCRIPT
+     JAVASCRIPT MYOS
      ===================================================== -->
 
 <script>
 
 
 /* =====================================================
-   ÉLÉMENTS PRINCIPAUX
+   ÉLÉMENTS
    ===================================================== */
 
 
@@ -527,6 +525,10 @@ const settingsScreen =
 
 const startButton =
     document.getElementById("startButton");
+
+
+const unlockHandle =
+    document.getElementById("unlockHandle");
 
 
 
@@ -605,23 +607,21 @@ setInterval(
 
 
 /* =====================================================
-   DÉMARRAGE DE MYOS
+   DÉMARRAGE
    ===================================================== */
 
 
 function startMyOS() {
 
-
-    /* Empêche les doubles clics */
-
     startButton.disabled = true;
-
 
     bootScreen.style.pointerEvents =
         "none";
 
 
-    /* Prépare l'écran de verrouillage */
+    /*
+     * Affiche l'écran verrouillé
+     */
 
     lockScreen.style.display =
         "flex";
@@ -632,7 +632,10 @@ function startMyOS() {
     );
 
 
-    /* Animation de sortie */
+    /*
+     * Animation de sortie
+     * de l'écran Bonjour
+     */
 
     bootScreen.classList.add(
         "boot-exit"
@@ -640,9 +643,8 @@ function startMyOS() {
 
 
     /*
-     * Après l'animation,
-     * l'écran Bonjour est
-     * complètement supprimé.
+     * Supprime réellement
+     * l'écran de démarrage.
      */
 
     setTimeout(function() {
@@ -662,14 +664,12 @@ function startMyOS() {
 
 function unlockMyOS() {
 
-
     lockScreen.classList.add(
         "lock-exit"
     );
 
 
     setTimeout(function() {
-
 
         lockScreen.style.display =
             "none";
@@ -691,10 +691,210 @@ function unlockMyOS() {
             "home-enter"
         );
 
-
     }, 650);
 
 }
+
+
+
+/* =====================================================
+   GESTE TACTILE
+   ===================================================== */
+
+
+let touchStartY = 0;
+
+let touchCurrentY = 0;
+
+let isDragging = false;
+
+
+
+/*
+ * Début du geste
+ */
+
+lockScreen.addEventListener(
+    "touchstart",
+    function(event) {
+
+        touchStartY =
+            event.touches[0].clientY;
+
+        touchCurrentY =
+            touchStartY;
+
+        isDragging = true;
+
+    },
+    { passive: true }
+);
+
+
+
+/*
+ * Mouvement du doigt
+ */
+
+lockScreen.addEventListener(
+    "touchmove",
+    function(event) {
+
+        if (!isDragging) return;
+
+
+        touchCurrentY =
+            event.touches[0].clientY;
+
+
+        const distance =
+            touchStartY -
+            touchCurrentY;
+
+
+        if (distance > 0) {
+
+            const movement =
+                Math.min(
+                    distance,
+                    110
+                );
+
+
+            unlockHandle.style.transform =
+                `translateY(-${movement}px)`;
+
+        }
+
+    },
+    { passive: true }
+);
+
+
+
+/*
+ * Fin du geste
+ */
+
+lockScreen.addEventListener(
+    "touchend",
+    function() {
+
+        if (!isDragging) return;
+
+
+        isDragging = false;
+
+
+        const distance =
+            touchStartY -
+            touchCurrentY;
+
+
+        /*
+         * 80 pixels minimum
+         */
+
+        if (distance > 80) {
+
+            unlockMyOS();
+
+        } else {
+
+            unlockHandle.style.transform =
+                "translateY(0)";
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   GESTE SOURIS POUR PC
+   ===================================================== */
+
+
+let mouseStartY = 0;
+
+let mouseDragging = false;
+
+
+
+unlockHandle.addEventListener(
+    "mousedown",
+    function(event) {
+
+        mouseStartY =
+            event.clientY;
+
+        mouseDragging = true;
+
+    }
+);
+
+
+
+document.addEventListener(
+    "mousemove",
+    function(event) {
+
+        if (!mouseDragging) return;
+
+
+        const distance =
+            mouseStartY -
+            event.clientY;
+
+
+        if (distance > 0) {
+
+            const movement =
+                Math.min(
+                    distance,
+                    110
+                );
+
+
+            unlockHandle.style.transform =
+                `translateY(-${movement}px)`;
+
+        }
+
+    }
+);
+
+
+
+document.addEventListener(
+    "mouseup",
+    function(event) {
+
+        if (!mouseDragging) return;
+
+
+        mouseDragging = false;
+
+
+        const distance =
+            mouseStartY -
+            event.clientY;
+
+
+        if (distance > 80) {
+
+            unlockMyOS();
+
+        } else {
+
+            unlockHandle.style.transform =
+                "translateY(0)";
+
+        }
+
+    }
+);
 
 
 
@@ -704,7 +904,6 @@ function unlockMyOS() {
 
 
 function openSettings() {
-
 
     homeScreen.style.display =
         "none";
@@ -737,14 +936,12 @@ function openSettings() {
 
 function closeSettings() {
 
-
     settingsScreen.style.display =
         "none";
 
 
     homeScreen.style.display =
         "block";
-
 
 }
 
@@ -756,7 +953,6 @@ function closeSettings() {
 
 
 function changeAnimations() {
-
 
     const toggle =
         document.getElementById(
@@ -798,7 +994,6 @@ if (
     savedAnimations !== null
 ) {
 
-
     const enabled =
         savedAnimations === "true";
 
@@ -824,11 +1019,9 @@ if (
 
 function openModule(module) {
 
-
     alert(
         "MyOS\n\nModule : " + module
     );
-
 
 }
 
