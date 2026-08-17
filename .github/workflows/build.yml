@@ -6,9 +6,7 @@ on:
       - main
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -17,117 +15,117 @@ jobs:
         uses: actions/checkout@v4
 
 
-      - name: Vérification des fichiers
+      - name: Vérifier les fichiers
         run: |
-          echo "Contenu du dépôt :"
+          echo "Contenu du dépôt"
           ls -la
-          echo "Contenu kernel :"
+          echo "Contenu kernel"
           ls -la kernel
-          echo "Recherche linker :"
-          find . -name "linker*"
+          echo "Recherche linker"
+          find . -name "linker.ld"
 
 
       - name: Installer les outils ARM64
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-          gcc-aarch64-linux-gnu \
-          binutils-aarch64-linux-gnu
+          sudo apt-get update -o Acquire::Retries=3
+          sudo apt-get install -y --no-install-recommends \
+            gcc-aarch64-linux-gnu \
+            binutils-aarch64-linux-gnu
 
 
       - name: Compiler kernel.c
         run: |
           aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c kernel/kernel.c \
-          -o kernel.o
+            -ffreestanding \
+            -nostdlib \
+            -c kernel/kernel.c \
+            -o kernel.o
 
 
       - name: Compiler console.c
         run: |
           aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c kernel/console.c \
-          -o console.o
-
-
-      - name: Compiler mémoire
-        run: |
-          aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c system/memory/memory.c \
-          -o memory.o
-
-
-      - name: Compiler stockage
-        run: |
-          aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c system/storage/storage.c \
-          -o storage.o
-
-
-      - name: Compiler tâches
-        run: |
-          aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c system/tasks/task.c \
-          -o task.o
-
-
-      - name: Compiler syscalls
-        run: |
-          aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c system/syscall/syscall.c \
-          -o syscall.o
-
-
-      - name: Compiler périphériques
-        run: |
-          aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c system/devices/device.c \
-          -o device.o
+            -ffreestanding \
+            -nostdlib \
+            -c kernel/console.c \
+            -o console.o
 
 
       - name: Compiler boot.c
         run: |
           aarch64-linux-gnu-gcc \
-          -ffreestanding \
-          -nostdlib \
-          -c kernel/boot.c \
-          -o boot.o
+            -ffreestanding \
+            -nostdlib \
+            -c kernel/boot.c \
+            -o boot.o
 
 
       - name: Compiler entry.S
         run: |
           aarch64-linux-gnu-as \
-          kernel/entry.S \
-          -o entry.o
+            kernel/entry.S \
+            -o entry.o
+
+
+      - name: Compiler mémoire
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/memory/memory.c \
+            -o memory.o
+
+
+      - name: Compiler stockage
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/storage/storage.c \
+            -o storage.o
+
+
+      - name: Compiler tâches
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/tasks/task.c \
+            -o task.o
+
+
+      - name: Compiler syscalls
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/syscall/syscall.c \
+            -o syscall.o
+
+
+      - name: Compiler périphériques
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/devices/device.c \
+            -o device.o
 
 
       - name: Créer le kernel MyOS
         run: |
           aarch64-linux-gnu-ld \
-          -T kernel/linker.ld \
-          entry.o \
-          boot.o \
-          kernel.o \
-          console.o \
-          memory.o \
-          storage.o \
-          task.o \
-          syscall.o \
-          device.o \
-          -o myos.elf
+            -T kernel/linker.ld \
+            entry.o \
+            boot.o \
+            kernel.o \
+            console.o \
+            memory.o \
+            storage.o \
+            task.o \
+            syscall.o \
+            device.o \
+            -o myos.elf
 
 
       - name: Vérifier le kernel créé
@@ -136,20 +134,10 @@ jobs:
           file myos.elf
 
 
-      - name: Vérification MyOS
+      - name: Résultat MyOS
         run: |
           echo "=============================="
-          echo "        MYOS KERNEL"
+          echo "       MYOS BUILD OK"
           echo "=============================="
-          echo ""
           echo "Kernel : OK"
-          echo "Console : OK"
-          echo "Memory : OK"
-          echo "Storage : OK"
-          echo "Tasks : OK"
-          echo "Syscalls : OK"
-          echo "Devices : OK"
-          echo "Boot : OK"
-          echo "Entry : OK"
-          echo ""
           echo "Compilation terminée."
