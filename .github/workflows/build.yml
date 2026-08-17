@@ -12,20 +12,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Vérifier linker
-        run: |
-          pwd
-          find . -name "linker*"
+
       - name: Télécharger MyOS
         uses: actions/checkout@v4
-      - name: Vérification du dossier kernel
+
+
+      - name: Vérification des fichiers
         run: |
           echo "Contenu du dépôt :"
           ls -la
-          echo "Contenu de kernel :"
+          echo "Contenu kernel :"
           ls -la kernel
           echo "Recherche linker :"
           find . -name "linker*"
+
 
       - name: Installer les outils ARM64
         run: |
@@ -113,6 +113,7 @@ jobs:
           kernel/entry.S \
           -o entry.o
 
+
       - name: Créer le kernel MyOS
         run: |
           aarch64-linux-gnu-ld \
@@ -127,10 +128,14 @@ jobs:
           syscall.o \
           device.o \
           -o myos.elf
-                - name: Vérifier le kernel créé
+
+
+      - name: Vérifier le kernel créé
         run: |
           ls -lh myos.elf
           file myos.elf
+
+
       - name: Vérification MyOS
         run: |
           echo "=============================="
