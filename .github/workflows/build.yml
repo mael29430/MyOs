@@ -18,7 +18,14 @@ jobs:
           find . -name "linker*"
       - name: Télécharger MyOS
         uses: actions/checkout@v4
-
+      - name: Vérification du dossier kernel
+        run: |
+          echo "Contenu du dépôt :"
+          ls -la
+          echo "Contenu de kernel :"
+          ls -la kernel
+          echo "Recherche linker :"
+          find . -name "linker*"
 
       - name: Installer les outils ARM64
         run: |
