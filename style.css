@@ -1165,3 +1165,11 @@ body {
     transition-duration: 0s !important;
 
 }
+/* =========================================
+   CORRECTION ÉCRAN DE DÉMARRAGE
+   ========================================= */
+
+.boot-screen.boot-exit {
+    pointer-events: none;
+    z-index: -1;
+}
