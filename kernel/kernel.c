@@ -1,7 +1,7 @@
 /*
  * MyOS Kernel
  *
- * Premier noyau expérimental ARM64.
+ * Noyau principal du système.
  */
 
 
@@ -11,6 +11,8 @@
 void console_init(void);
 
 void memory_init(void);
+
+void storage_init(void);
 
 
 
@@ -22,21 +24,25 @@ void kernel_main(void)
 {
 
     /*
-     * Initialisation des services
+     * Démarrage des services système
      */
 
     console_init();
 
     memory_init();
 
+    storage_init();
+
 
 
     /*
+     * Services actifs.
+     *
      * Plus tard :
-     * - stockage
      * - réseau
-     * - pilotes
+     * - sécurité
      * - interface graphique
+     * - applications
      */
 
 
@@ -44,7 +50,7 @@ void kernel_main(void)
     {
 
         /*
-         * Le kernel reste actif.
+         * Boucle principale du kernel.
          */
 
     }
