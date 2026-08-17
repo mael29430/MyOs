@@ -79,6 +79,15 @@ jobs:
           -o syscall.o
 
 
+      - name: Compiler périphériques
+        run: |
+          aarch64-linux-gnu-gcc \
+          -ffreestanding \
+          -nostdlib \
+          -c system/devices/device.c \
+          -o device.o
+
+
       - name: Compiler boot.c
         run: |
           aarch64-linux-gnu-gcc \
@@ -107,6 +116,7 @@ jobs:
           echo "Storage : OK"
           echo "Tasks : OK"
           echo "Syscalls : OK"
+          echo "Devices : OK"
           echo "Boot : OK"
           echo "Entry : OK"
           echo ""
