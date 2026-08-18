@@ -1,76 +1,52 @@
 /*
- * MyOS Kernel
+ * MyOS Console
  *
- * Noyau principal du système.
+ * Console série PL011 pour QEMU virt.
  */
 
-#include "../system/config.h"
+#define UART_BASE 0x09000000UL
+
+#define UART_DR (*(volatile unsigned int *)(UART_BASE + 0x00))
+#define UART_FR (*(volatile unsigned int *)(UART_BASE + 0x18))
+
+#define UART_FR_TXFF (1 << 5)
 
 
-/*
- * Fonctions du système
- */
-
-void console_init(void);
-void console_write(const char *text);
-
-void memory_init(void);
-void storage_init(void);
-void task_init(void);
-void syscall_init(void);
-void device_init(void);
-
-
-/*
- * Point d'entrée du kernel
- */
-
-void kernel_main(void)
+void console_init(void)
 {
     /*
-     * Initialisation de la console
+     * Le PL011 de QEMU virt est déjà initialisé
+     * suffisamment pour notre premier affichage.
      */
+}
 
-    console_init();
 
+static void console_putc(char c)
+{
     /*
-     * Premier message de MyOS
+     * Attendre que le FIFO de transmission
+     * ne soit pas plein.
      */
 
-    console_write("MyOS Kernel Started\n");
-
-
-    /*
-     * Initialisation des services système
-     */
-
-    memory_init();
-
-    storage_init();
-
-    task_init();
-
-    syscall_init();
-
-    device_init();
-
-
-    /*
-     * Message indiquant que
-     * l'initialisation est terminée.
-     */
-
-    console_write("MyOS Services Initialized\n");
-
-
-    /*
-     * Boucle principale du kernel.
-     */
-
-    while (1)
+    while (UART_FR & UART_FR_TXFF)
     {
-        /*
-         * Kernel actif.
-         */
+    }
+
+    UART_DR = (unsigned int)c;
+}
+
+
+void console_write(const char *text)
+{
+    while (*text)
+    {
+        if (*text == '\n')
+        {
+            console_putc('\r');
+        }
+
+        console_putc(*text);
+
+        text++;
     }
 }
