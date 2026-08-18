@@ -1,7 +1,5 @@
 /*
  * MyOS - Task Manager
- *
- * Gestion des tâches et préparation du contexte ARM64.
  */
 
 #include <stdint.h>
@@ -13,22 +11,6 @@
 #define TASK_RUNNING  2
 #define TASK_BLOCKED  3
 
-/*
- * Layout correspondant exactement à context.S :
- *
- *  0 : x19
- *  8 : x20
- * 16 : x21
- * 24 : x22
- * 32 : x23
- * 40 : x24
- * 48 : x25
- * 56 : x26
- * 64 : x27
- * 72 : x28
- * 80 : SP
- * 88 : X30
- */
 typedef struct
 {
     uint64_t x19;
@@ -50,7 +32,6 @@ typedef struct
     uint64_t id;
     uint64_t state;
     uint64_t ticks;
-
     task_context_t context;
 } task_t;
 
@@ -58,14 +39,11 @@ static task_t tasks[MAX_TASKS];
 
 static uint64_t task_count = 0;
 static uint64_t current_task = 0;
+static uint64_t scheduler_ticks = 0;
 
 extern int task_context_save(task_context_t *context);
 extern void task_context_restore(task_context_t *context);
 
-
-/*
- * Initialise le gestionnaire de tâches.
- */
 void task_init(void)
 {
     for (uint64_t i = 0; i < MAX_TASKS; i++)
@@ -90,12 +68,9 @@ void task_init(void)
 
     task_count = 0;
     current_task = 0;
+    scheduler_ticks = 0;
 }
 
-
-/*
- * Crée une tâche.
- */
 uint64_t task_create(void)
 {
     if (task_count >= MAX_TASKS)
@@ -111,19 +86,6 @@ uint64_t task_create(void)
             tasks[i].state = TASK_READY;
             tasks[i].ticks = 0;
 
-            tasks[i].context.x19 = 0;
-            tasks[i].context.x20 = 0;
-            tasks[i].context.x21 = 0;
-            tasks[i].context.x22 = 0;
-            tasks[i].context.x23 = 0;
-            tasks[i].context.x24 = 0;
-            tasks[i].context.x25 = 0;
-            tasks[i].context.x26 = 0;
-            tasks[i].context.x27 = 0;
-            tasks[i].context.x28 = 0;
-            tasks[i].context.sp = 0;
-            tasks[i].context.x30 = 0;
-
             task_count++;
 
             return tasks[i].id;
@@ -133,10 +95,6 @@ uint64_t task_create(void)
     return 0;
 }
 
-
-/*
- * Met une tâche en état READY.
- */
 void task_ready(uint64_t id)
 {
     for (uint64_t i = 0; i < MAX_TASKS; i++)
@@ -149,10 +107,6 @@ void task_ready(uint64_t id)
     }
 }
 
-
-/*
- * Bloque une tâche.
- */
 void task_block(uint64_t id)
 {
     for (uint64_t i = 0; i < MAX_TASKS; i++)
@@ -165,10 +119,6 @@ void task_block(uint64_t id)
     }
 }
 
-
-/*
- * Sélectionne la prochaine tâche prête.
- */
 uint64_t task_schedule(void)
 {
     if (task_count == 0)
@@ -186,7 +136,6 @@ uint64_t task_schedule(void)
             tasks[current_task].state = TASK_READY;
 
             current_task = index;
-
             tasks[current_task].state = TASK_RUNNING;
 
             return tasks[current_task].id;
@@ -196,10 +145,6 @@ uint64_t task_schedule(void)
     return tasks[current_task].id;
 }
 
-
-/*
- * Retourne la tâche actuelle.
- */
 uint64_t task_current(void)
 {
     if (task_count == 0)
@@ -210,12 +155,13 @@ uint64_t task_current(void)
     return tasks[current_task].id;
 }
 
-
 /*
- * Appelé par le timer.
+ * Appelé à chaque interruption timer.
  */
 void task_tick(void)
 {
+    scheduler_ticks++;
+
     if (task_count == 0)
     {
         return;
@@ -224,13 +170,15 @@ void task_tick(void)
     tasks[current_task].ticks++;
 }
 
-
 /*
- * Sauvegarde le contexte de la tâche actuelle.
- *
- * Cette fonction sera utilisée lorsque les interruptions
- * permettront une vraie commutation de contexte.
+ * Compteur utilisé pour vérifier que
+ * le scheduler reçoit bien les ticks.
  */
+uint64_t task_get_ticks(void)
+{
+    return scheduler_ticks;
+}
+
 int task_save_current_context(void)
 {
     if (task_count == 0)
@@ -241,10 +189,6 @@ int task_save_current_context(void)
     return task_context_save(&tasks[current_task].context);
 }
 
-
-/*
- * Restaure le contexte de la tâche actuelle.
- */
 void task_restore_current_context(void)
 {
     if (task_count == 0)
