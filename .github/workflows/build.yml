@@ -12,14 +12,12 @@ jobs:
 
       - name: Vérifier les fichiers
         run: |
-          echo "Contenu du dépôt"
+          echo "=== Dépôt ==="
           ls -la
-
-          echo "Contenu de kernel"
+          echo "=== Kernel ==="
           ls -la kernel
-
-          echo "Recherche linker"
-          find . -name "linker.ld"
+          echo "=== System ==="
+          find system -maxdepth 3 -type f
 
       - name: Installer les outils ARM64
         run: |
@@ -71,7 +69,7 @@ jobs:
           aarch64-linux-gnu-gcc \
             -ffreestanding \
             -nostdlib \
-            -c system/interrupts/interrupt.c \
+            -c system/intrrupts/interrupt.c \
             -o interrupt.o
 
       - name: Compiler timer
@@ -140,7 +138,7 @@ jobs:
             filesystem.o \
             -o myos.elf
 
-      - name: Vérifier le kernel créé
+      - name: Vérifier le kernel
         run: |
           ls -lh myos.elf
           file myos.elf
