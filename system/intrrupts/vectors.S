@@ -8,6 +8,8 @@
 .global exception_vectors
 .global exception_vector_entry
 
+.extern interrupt_handler
+
 exception_vectors:
 
     /*
@@ -38,11 +40,12 @@ exception_vectors:
 exception_vector_entry:
 
     /*
-     * Pour l'instant, on retourne simplement de
-     * l'exception sans modifier le contexte.
-     *
-     * Le vrai gestionnaire d'interruptions sera
-     * branché ensuite.
+     * Sauvegarde minimale des registres utilisés.
      */
+    stp x0, x1, [sp, #-16]!
+
+    bl interrupt_handler
+
+    ldp x0, x1, [sp], #16
 
     eret
