@@ -34,6 +34,7 @@ void timer_init(void);
  * Tâches
  */
 void task_init(void);
+void task_create_test_tasks(void);
 
 /*
  * Syscalls
@@ -112,12 +113,24 @@ void kernel_main(void)
     );
 
     /*
-     * Tâches
+     * Gestionnaire de tâches
      */
     task_init();
 
     console_write(
         "[ OK ] Task manager\n"
+    );
+
+    /*
+     * Création des deux tâches de test.
+     *
+     * Elles seront utilisées pour tester
+     * la commutation de contexte A -> B.
+     */
+    task_create_test_tasks();
+
+    console_write(
+        "[ OK ] Test tasks created\n"
     );
 
     /*
@@ -167,7 +180,10 @@ void kernel_main(void)
     );
 
     /*
-     * Boucle principale.
+     * Boucle principale du kernel.
+     *
+     * Le timer déclenchera les interruptions
+     * pendant que le CPU attend.
      */
     while (1)
     {
