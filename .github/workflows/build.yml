@@ -84,5 +84,14 @@ jobs:
       - name: Vérifier QEMU
         run: |
           qemu-system-aarch64 --version
+                - name: Démarrer MyOS avec QEMU
+        run: |
+          timeout 5s qemu-system-aarch64 \
+            -machine virt \
+            -cpu cortex-a72 \
+            -m 128M \
+            -kernel myos.elf \
+            -nographic \
+            -serial mon:stdio || true
       - name: Résultat
         run: echo "MYOS KERNEL BUILD OK"
