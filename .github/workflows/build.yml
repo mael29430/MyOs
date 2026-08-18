@@ -19,8 +19,10 @@ jobs:
         run: |
           echo "Contenu du dépôt"
           ls -la
+
           echo "Contenu kernel"
           ls -la kernel
+
           echo "Recherche linker"
           find . -name "linker.ld"
 
@@ -28,6 +30,7 @@ jobs:
       - name: Installer les outils ARM64
         run: |
           sudo apt-get update -o Acquire::Retries=3
+
           sudo apt-get install -y --no-install-recommends \
             gcc-aarch64-linux-gnu \
             binutils-aarch64-linux-gnu
@@ -134,10 +137,24 @@ jobs:
           file myos.elf
 
 
+      - name: Installer QEMU
+        run: |
+          sudo apt-get update -o Acquire::Retries=3
+
+          sudo apt-get install -y --no-install-recommends \
+            qemu-system-aarch64
+
+
+      - name: Vérifier QEMU
+        run: |
+          qemu-system-aarch64 --version
+
+
       - name: Résultat MyOS
         run: |
           echo "=============================="
           echo "       MYOS BUILD OK"
           echo "=============================="
           echo "Kernel : OK"
+          echo "QEMU : OK"
           echo "Compilation terminée."
