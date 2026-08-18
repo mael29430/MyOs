@@ -64,6 +64,18 @@ jobs:
             -c system/intrrupts/interrupt.c \
             -o interrupt.o
 
+      - name: Compiler vecteurs ARM64
+        run: |
+          aarch64-linux-gnu-as \
+            system/intrrupts/vectors.S \
+            -o vectors.o
+
+      - name: Compiler initialisation interruptions
+        run: |
+          aarch64-linux-gnu-as \
+            system/intrrupts/interrupt_init.S \
+            -o interrupt_init.o
+
       - name: Compiler timer
         run: |
           aarch64-linux-gnu-gcc \
@@ -128,6 +140,8 @@ jobs:
             console.o \
             memory.o \
             interrupt.o \
+            vectors.o \
+            interrupt_init.o \
             timer.o \
             task.o \
             context.o \
@@ -136,6 +150,11 @@ jobs:
             filesystem.o \
             syscall.o \
             -o myos.elf
+
+      - name: Vérifier les vecteurs ARM64
+        run: |
+          aarch64-linux-gnu-nm myos.elf | grep exception_vectors
+          aarch64-linux-gnu-nm myos.elf | grep interrupt_vectors_init
 
       - name: Vérifier les fonctions de contexte
         run: |
@@ -167,6 +186,8 @@ jobs:
           echo "        MYOS BUILD OK"
           echo "=============================="
           echo "Kernel : OK"
+          echo "ARM64 vectors : OK"
+          echo "Interrupt initialization : OK"
           echo "Context ARM64 : OK"
           echo "QEMU : OK"
           echo "=============================="
