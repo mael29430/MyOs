@@ -8,6 +8,7 @@
  * Gestionnaire de tâches.
  */
 extern void task_tick(void);
+extern uint64_t task_switch(void);
 
 /*
  * Compteur global d'interruptions.
@@ -25,20 +26,24 @@ void interrupt_init(void)
 
 
 /*
- * Gestionnaire appelé par les vecteurs ARM64.
- *
- * Pour l'instant :
- *   1. compte l'interruption ;
- *   2. informe le gestionnaire de tâches.
- *
- * Le changement de contexte réel viendra
- * dans l'étape suivante.
+ * Gestionnaire principal des interruptions.
  */
 void interrupt_handler(void)
 {
     interrupt_count++;
 
+    /*
+     * Informe le scheduler qu'un tick est arrivé.
+     */
     task_tick();
+
+    /*
+     * Sélectionne éventuellement une autre tâche.
+     *
+     * La restauration du contexte CPU sera ajoutée
+     * dans l'étape suivante.
+     */
+    task_switch();
 }
 
 
