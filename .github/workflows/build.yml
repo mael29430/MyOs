@@ -1,3 +1,4 @@
+```yaml
 name: MyOS Build
 
 "on": push
@@ -173,7 +174,7 @@ jobs:
       - name: Démarrer MyOS avec QEMU
         run: |
           timeout 5s qemu-system-aarch64 \
-            -machine virt \
+            -machine virt,gic-version=3 \
             -cpu cortex-a72 \
             -m 128M \
             -kernel myos.elf \
@@ -189,5 +190,7 @@ jobs:
           echo "ARM64 vectors : OK"
           echo "Interrupt initialization : OK"
           echo "Context ARM64 : OK"
+          echo "GIC : GICv3"
           echo "QEMU : OK"
           echo "=============================="
+```
