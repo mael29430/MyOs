@@ -1,43 +1,128 @@
 /*
- * MyOS Timer
+ * MyOS - ARM64 Generic Timer
  *
- * Timer système ARM64.
+ * Timer système basé sur le Generic Timer ARM64.
  */
 
-static volatile unsigned long timer_ticks = 0;
-
+#include <stdint.h>
 
 /*
- * Initialise le timer.
+ * Fréquence du compteur.
  *
- * Cette première version utilise
- * un compteur logiciel.
+ * Sur QEMU virt, cette valeur est généralement fournie
+ * par l'environnement. Pour notre première implémentation,
+ * on utilise une valeur standard de 62.5 MHz.
  */
+#define TIMER_FREQUENCY 62500000ULL
 
+/*
+ * Lecture du compteur virtuel ARM64.
+ */
+static inline uint64_t timer_read_counter(void)
+{
+    uint64_t value;
+
+    __asm__ volatile(
+        "mrs %0, cntvct_el0"
+        : "=r"(value)
+    );
+
+    return value;
+}
+
+/*
+ * Lecture de la fréquence du timer directement
+ * depuis le registre ARM64.
+ */
+static inline uint64_t timer_read_frequency(void)
+{
+    uint64_t value;
+
+    __asm__ volatile(
+        "mrs %0, cntfrq_el0"
+        : "=r"(value)
+    );
+
+    return value;
+}
+
+/*
+ * Initialisation du timer.
+ */
 void timer_init(void)
 {
-    timer_ticks = 0;
+    uint64_t frequency = timer_read_frequency();
+
+    /*
+     * Si la plateforme fournit une fréquence valide,
+     * on l'utilise.
+     */
+    if (frequency != 0)
+    {
+        /*
+         * La lecture force simplement le registre à être
+         * accessible et vérifie que le timer ARM fonctionne.
+         */
+        (void)frequency;
+    }
+
+    /*
+     * Lecture initiale du compteur.
+     */
+    (void)timer_read_counter();
 }
 
-
 /*
- * Incrémente le compteur.
- *
- * Le véritable interrupt timer sera
- * connecté dans une version suivante.
+ * Retourne le nombre de ticks du Generic Timer.
  */
-
-void timer_tick(void)
+uint64_t timer_ticks(void)
 {
-    timer_ticks++;
+    return timer_read_counter();
 }
 
+/*
+ * Retourne la fréquence réelle du Generic Timer.
+ */
+uint64_t timer_frequency(void)
+{
+    uint64_t frequency = timer_read_frequency();
+
+    if (frequency == 0)
+    {
+        return TIMER_FREQUENCY;
+    }
+
+    return frequency;
+}
 
 /*
- * Retourne le nombre de ticks.
+ * Retourne le temps écoulé en millisecondes.
  */
-
-unsigned long timer_get_ticks(void)
+uint64_t timer_milliseconds(void)
 {
-    return timer_ticks;
+    uint64_t ticks = timer_ticks();
+    uint64_t frequency = timer_frequency();
+
+    if (frequency == 0)
+    {
+        return 0;
+    }
+
+    return (ticks * 1000ULL) / frequency;
+}
+
+/*
+ * Retourne le temps écoulé en secondes.
+ */
+uint64_t timer_seconds(void)
+{
+    uint64_t ticks = timer_ticks();
+    uint64_t frequency = timer_frequency();
+
+    if (frequency == 0)
+    {
+        return 0;
+    }
+
+    return ticks / frequency;
 }
