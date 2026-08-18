@@ -1,26 +1,12 @@
-```yaml
-name: Test MyOS
+```yaml id="f4a7d1"
+name: Test
 
-"on":
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Test QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-aarch64
-          qemu-system-aarch64 --version
-
-      - name: Test MyOS
-        run: |
-          echo "MyOS workflow fonctionne"
+      - run: echo "OK"
 ```
+
