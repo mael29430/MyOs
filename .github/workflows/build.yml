@@ -1,13 +1,13 @@
-name: Test 
+name: Test
 
 "on":
-push
+push:
 branches:
 - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Test
-        - run: echo OK
+test:
+runs-on: ubuntu-latest
+steps:
+- name: Test
+run: echo OK
