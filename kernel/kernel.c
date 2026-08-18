@@ -1,71 +1,30 @@
 /*
- * MyOS Kernel
+ * MyOS Console
  *
- * Noyau principal du système.
+ * Premier système d'affichage
+ * du kernel.
  */
 
+#define UART0_BASE 0x09000000UL
 
-#include "../system/config.h"
-
-
-void console_init(void);
-
-void memory_init(void);
-
-void storage_init(void);
-
-void task_init(void);
-
-void syscall_init(void);
-
-void device_init(void);
+volatile unsigned int* const UART0 =
+    (volatile unsigned int*)UART0_BASE;
 
 
-
-/*
- * Point d'entrée du kernel
- */
-
-void kernel_main(void)
+void console_init(void)
 {
-
     /*
-     * Initialisation des services système
+     * Initialisation future
+     * de la console MyOS.
      */
-
-    console_init();
-
-    memory_init();
-
-    storage_init();
-
-    task_init();
-
-    syscall_init();
-
-    device_init();
+}
 
 
-
-    /*
-     * Services actifs :
-     *
-     * Console
-     * Mémoire
-     * Stockage
-     * Tâches
-     * Syscalls
-     * Périphériques
-     */
-
-
-    while (1)
+void console_write(const char* text)
+{
+    while (*text)
     {
-
-        /*
-         * Boucle principale du kernel.
-         */
-
+        *UART0 = *text;
+        text++;
     }
-
 }
