@@ -1,23 +1,11 @@
 /*
  * MyOS - ARM64 Generic Timer
- *
- * Timer système basé sur le Generic Timer ARM64.
  */
 
 #include <stdint.h>
 
-/*
- * Fréquence du compteur.
- *
- * Sur QEMU virt, cette valeur est généralement fournie
- * par l'environnement. Pour notre première implémentation,
- * on utilise une valeur standard de 62.5 MHz.
- */
-#define TIMER_FREQUENCY 62500000ULL
+#define TIMER_INTERVAL_MS 10ULL
 
-/*
- * Lecture du compteur virtuel ARM64.
- */
 static inline uint64_t timer_read_counter(void)
 {
     uint64_t value;
@@ -30,10 +18,6 @@ static inline uint64_t timer_read_counter(void)
     return value;
 }
 
-/*
- * Lecture de la fréquence du timer directement
- * depuis le registre ARM64.
- */
 static inline uint64_t timer_read_frequency(void)
 {
     uint64_t value;
@@ -46,61 +30,62 @@ static inline uint64_t timer_read_frequency(void)
     return value;
 }
 
-/*
- * Initialisation du timer.
- */
+static inline void timer_write_compare(uint64_t value)
+{
+    __asm__ volatile(
+        "msr cntv_cval_el0, %0"
+        :
+        : "r"(value)
+    );
+}
+
+static inline void timer_enable(void)
+{
+    uint64_t value = 0;
+
+    /*
+     * Enable virtual timer.
+     */
+    __asm__ volatile(
+        "msr cntv_ctl_el0, %0"
+        :
+        : "r"(value | 1ULL)
+    );
+
+    __asm__ volatile("isb");
+}
+
 void timer_init(void)
 {
     uint64_t frequency = timer_read_frequency();
 
-    /*
-     * Si la plateforme fournit une fréquence valide,
-     * on l'utilise.
-     */
-    if (frequency != 0)
+    if (frequency == 0)
     {
-        /*
-         * La lecture force simplement le registre à être
-         * accessible et vérifie que le timer ARM fonctionne.
-         */
-        (void)frequency;
+        return;
     }
 
-    /*
-     * Lecture initiale du compteur.
-     */
-    (void)timer_read_counter();
+    uint64_t interval =
+        (frequency * TIMER_INTERVAL_MS) / 1000ULL;
+
+    uint64_t now = timer_read_counter();
+
+    timer_write_compare(now + interval);
+
+    timer_enable();
 }
 
-/*
- * Retourne le nombre de ticks du Generic Timer.
- */
 uint64_t timer_ticks(void)
 {
     return timer_read_counter();
 }
 
-/*
- * Retourne la fréquence réelle du Generic Timer.
- */
 uint64_t timer_frequency(void)
 {
-    uint64_t frequency = timer_read_frequency();
-
-    if (frequency == 0)
-    {
-        return TIMER_FREQUENCY;
-    }
-
-    return frequency;
+    return timer_read_frequency();
 }
 
-/*
- * Retourne le temps écoulé en millisecondes.
- */
 uint64_t timer_milliseconds(void)
 {
-    uint64_t ticks = timer_ticks();
     uint64_t frequency = timer_frequency();
 
     if (frequency == 0)
@@ -108,15 +93,11 @@ uint64_t timer_milliseconds(void)
         return 0;
     }
 
-    return (ticks * 1000ULL) / frequency;
+    return (timer_ticks() * 1000ULL) / frequency;
 }
 
-/*
- * Retourne le temps écoulé en secondes.
- */
 uint64_t timer_seconds(void)
 {
-    uint64_t ticks = timer_ticks();
     uint64_t frequency = timer_frequency();
 
     if (frequency == 0)
@@ -124,5 +105,5 @@ uint64_t timer_seconds(void)
         return 0;
     }
 
-    return ticks / frequency;
+    return timer_ticks() / frequency;
 }
