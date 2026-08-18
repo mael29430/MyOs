@@ -1,53 +1,22 @@
 /*
- * MyOS Interrupt Manager
- *
- * Architecture ARM64.
+ * MyOS - ARM64 Interrupt Manager
  */
 
-static volatile unsigned long
-interrupts_enabled = 0;
+#include <stdint.h>
 
-
-/*
- * Initialise le système d'interruptions.
- *
- * Pour cette première version,
- * nous préparons uniquement l'architecture.
- */
+static volatile uint64_t interrupt_count = 0;
 
 void interrupt_init(void)
 {
-    interrupts_enabled = 0;
+    interrupt_count = 0;
 }
 
-
-/*
- * Active les interruptions ARM64.
- */
-
-void interrupt_enable(void)
+void interrupt_handler(void)
 {
-    asm volatile("msr daifclr, #2");
-    interrupts_enabled = 1;
+    interrupt_count++;
 }
 
-
-/*
- * Désactive les interruptions ARM64.
- */
-
-void interrupt_disable(void)
+uint64_t interrupt_get_count(void)
 {
-    asm volatile("msr daifset, #2");
-    interrupts_enabled = 0;
-}
-
-
-/*
- * Retourne l'état logiciel.
- */
-
-unsigned long interrupt_status(void)
-{
-    return interrupts_enabled;
+    return interrupt_count;
 }
