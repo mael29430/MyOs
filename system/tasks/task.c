@@ -1,3 +1,9 @@
+/*
+ * MyOS - Task Manager
+ *
+ * ARM64 scheduler with independent task stacks.
+ */
+
 #include <stdint.h>
 
 #define MAX_TASKS 16
@@ -37,7 +43,9 @@ typedef struct
     task_context_t context;
 
     uint8_t stack[TASK_STACK_SIZE];
+
 } task_t;
+
 
 static task_t tasks[MAX_TASKS];
 
@@ -47,12 +55,12 @@ static uint64_t scheduler_ticks = 0;
 
 
 /*
- * Point d'entrée d'une tâche de test.
+ * Tâche de test.
  *
- * Pour l'instant les tâches restent dans leur boucle
- * afin de pouvoir tester leur changement plus tard.
+ * Pour cette étape elle reste volontairement
+ * dans une boucle sûre.
  */
-static void task_idle_entry(void)
+static void task_test_entry(void)
 {
     for (;;)
     {
@@ -97,7 +105,7 @@ void task_init(void)
 
 
 /*
- * Crée une tâche.
+ * Crée une nouvelle tâche.
  */
 uint64_t task_create(void)
 {
@@ -114,7 +122,7 @@ uint64_t task_create(void)
                 (uint64_t)&tasks[i].stack[TASK_STACK_SIZE];
 
             /*
-             * Alignement ARM64 de la pile sur 16 octets.
+             * ARM64 exige une pile alignée sur 16 octets.
              */
             stack_top &= ~((uint64_t)0xF);
 
@@ -126,20 +134,26 @@ uint64_t task_create(void)
              * Contexte initial.
              */
             tasks[i].context.sp = stack_top;
+
             tasks[i].context.x30 =
-                (uint64_t)task_idle_entry;
+                (uint64_t)task_test_entry;
 
             tasks[i].context.elr_el1 =
-                (uint64_t)task_idle_entry;
+                (uint64_t)task_test_entry;
 
             /*
-             * État EL1 avec les interruptions activées
-             * au retour d'exception.
+             * État initial du processeur.
+             *
+             * Il ne sera utilisé pour ERET
+             * qu'après validation de l'étape suivante.
              */
             tasks[i].context.spsr_el1 = 0;
 
             task_count++;
 
+            /*
+             * Première tâche = tâche courante.
+             */
             if (task_count == 1)
             {
                 current_task = i;
@@ -187,7 +201,7 @@ void task_block(uint64_t id)
 
 
 /*
- * Sélectionne la prochaine tâche READY.
+ * Choisit la prochaine tâche READY.
  */
 uint64_t task_schedule(void)
 {
@@ -211,7 +225,9 @@ uint64_t task_schedule(void)
             }
 
             current_task = index;
-            tasks[current_task].state = TASK_RUNNING;
+
+            tasks[current_task].state =
+                TASK_RUNNING;
 
             return tasks[current_task].id;
         }
@@ -236,7 +252,7 @@ uint64_t task_current(void)
 
 
 /*
- * Tick du scheduler.
+ * Appelé à chaque tick.
  */
 void task_tick(void)
 {
@@ -261,7 +277,7 @@ uint64_t task_get_ticks(void)
 
 
 /*
- * Sauvegarde le contexte courant.
+ * Sauvegarde du contexte.
  */
 extern int task_context_save(task_context_t *context);
 
@@ -279,7 +295,10 @@ int task_save_current_context(void)
 
 
 /*
- * Restaure le contexte courant.
+ * Restauration du contexte.
+ *
+ * Pas encore appelée depuis l'IRQ :
+ * cette connexion sera faite dans l'étape suivante.
  */
 extern void task_context_restore(task_context_t *context);
 
@@ -303,7 +322,8 @@ uint64_t task_switch(void)
 {
     uint64_t old_task = task_current();
 
-    uint64_t new_task = task_schedule();
+    uint64_t new_task =
+        task_schedule();
 
     if (new_task == 0)
     {
