@@ -4,15 +4,9 @@
 
 #include <stdint.h>
 
-/*
- * Gestionnaire de tâches.
- */
 extern void task_tick(void);
 extern uint64_t task_switch(void);
 
-/*
- * Compteur global d'interruptions.
- */
 static volatile uint64_t interrupt_count = 0;
 
 
@@ -27,21 +21,27 @@ void interrupt_init(void)
 
 /*
  * Gestionnaire principal des interruptions.
+ *
+ * frame contient le contexte CPU sauvegardé
+ * par vectors.S.
  */
-void interrupt_handler(void)
+void interrupt_handler(void *frame)
 {
+    /*
+     * Pour l'instant, le frame est uniquement
+     * préparé pour le futur changement de contexte.
+     */
+    (void)frame;
+
     interrupt_count++;
 
-    /*
-     * Informe le scheduler qu'un tick est arrivé.
-     */
     task_tick();
 
     /*
-     * Sélectionne éventuellement une autre tâche.
+     * Sélectionne la prochaine tâche.
      *
-     * La restauration du contexte CPU sera ajoutée
-     * dans l'étape suivante.
+     * IMPORTANT :
+     * on ne restaure pas encore son contexte.
      */
     task_switch();
 }
