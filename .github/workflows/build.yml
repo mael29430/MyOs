@@ -10,21 +10,13 @@ jobs:
       - name: Télécharger MyOS
         uses: actions/checkout@v4
 
-      - name: Vérifier les fichiers
-        run: |
-          echo "=== Dépôt ==="
-          ls -la
-          echo "=== Kernel ==="
-          ls -la kernel
-          echo "=== System ==="
-          find system -maxdepth 3 -type f
-
       - name: Installer les outils ARM64
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             gcc-aarch64-linux-gnu \
-            binutils-aarch64-linux-gnu
+            binutils-aarch64-linux-gnu \
+            qemu-system-aarch64
 
       - name: Compiler kernel.c
         run: |
@@ -80,14 +72,6 @@ jobs:
             -c system/timer/timer.c \
             -o timer.o
 
-      - name: Compiler stockage
-        run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c system/storage/storage.c \
-            -o storage.o
-
       - name: Compiler tâches
         run: |
           aarch64-linux-gnu-gcc \
@@ -96,13 +80,11 @@ jobs:
             -c system/tasks/task.c \
             -o task.o
 
-      - name: Compiler syscalls
+      - name: Compiler contexte ARM64
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c system/syscall/syscall.c \
-            -o syscall.o
+          aarch64-linux-gnu-as \
+            system/tasks/context.S \
+            -o context.o
 
       - name: Compiler périphériques
         run: |
@@ -112,6 +94,14 @@ jobs:
             -c system/devices/device.c \
             -o device.o
 
+      - name: Compiler stockage
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/storage/storage.c \
+            -o storage.o
+
       - name: Compiler système de fichiers
         run: |
           aarch64-linux-gnu-gcc \
@@ -119,6 +109,14 @@ jobs:
             -nostdlib \
             -c system/filesystem/filesystem.c \
             -o filesystem.o
+
+      - name: Compiler syscalls
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/syscall/syscall.c \
+            -o syscall.o
 
       - name: Créer le kernel MyOS
         run: |
@@ -131,22 +129,23 @@ jobs:
             memory.o \
             interrupt.o \
             timer.o \
-            storage.o \
             task.o \
-            syscall.o \
+            context.o \
             device.o \
+            storage.o \
             filesystem.o \
+            syscall.o \
             -o myos.elf
+
+      - name: Vérifier les fonctions de contexte
+        run: |
+          aarch64-linux-gnu-nm myos.elf | grep task_context_save
+          aarch64-linux-gnu-nm myos.elf | grep task_context_restore
 
       - name: Vérifier le kernel
         run: |
           ls -lh myos.elf
           file myos.elf
-
-      - name: Installer QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-aarch64
 
       - name: Vérifier QEMU
         run: |
@@ -168,13 +167,6 @@ jobs:
           echo "        MYOS BUILD OK"
           echo "=============================="
           echo "Kernel : OK"
-          echo "Memory : OK"
-          echo "Interruptions : OK"
-          echo "Timer : OK"
-          echo "Tasks : OK"
-          echo "Devices : OK"
-          echo "Storage : OK"
-          echo "File system : OK"
-          echo "Syscalls : OK"
+          echo "Context ARM64 : OK"
           echo "QEMU : OK"
           echo "=============================="
