@@ -7,8 +7,12 @@
 #include "../system/config.h"
 
 
+/*
+ * Fonctions du système
+ */
+
 void console_init(void);
-void console_write(const char* text);
+void console_write(const char *text);
 
 void memory_init(void);
 void storage_init(void);
@@ -24,19 +28,21 @@ void device_init(void);
 void kernel_main(void)
 {
     /*
-     * Initialisation des services système
+     * Initialisation de la console
      */
 
     console_init();
 
-    console_write("\n");
-    console_write("================\n");
-    console_write("      MyOS\n");
-    console_write("================\n");
-    console_write("\n");
-    console_write("Kernel demarre !\n");
-    console_write("Initialisation du systeme...\n");
+    /*
+     * Premier message de MyOS
+     */
 
+    console_write("MyOS Kernel Started\n");
+
+
+    /*
+     * Initialisation des services système
+     */
 
     memory_init();
 
@@ -49,7 +55,12 @@ void kernel_main(void)
     device_init();
 
 
-    console_write("Systeme MyOS initialise.\n");
+    /*
+     * Message indiquant que
+     * l'initialisation est terminée.
+     */
+
+    console_write("MyOS Services Initialized\n");
 
 
     /*
@@ -58,5 +69,8 @@ void kernel_main(void)
 
     while (1)
     {
+        /*
+         * Kernel actif.
+         */
     }
 }
