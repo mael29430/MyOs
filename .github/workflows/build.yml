@@ -150,11 +150,23 @@ jobs:
           qemu-system-aarch64 --version
 
 
+      - name: Tester MyOS avec QEMU
+        timeout-minutes: 1
+        run: |
+          timeout 30s qemu-system-aarch64 \
+            -machine virt \
+            -cpu cortex-a72 \
+            -m 128M \
+            -kernel myos.elf \
+            -nographic \
+            -serial mon:stdio
+
+
       - name: Résultat MyOS
         run: |
           echo "=============================="
-          echo "       MYOS BUILD OK"
+          echo "       MYOS BUILD"
           echo "=============================="
           echo "Kernel : OK"
-          echo "QEMU : OK"
-          echo "Compilation terminée."
+          echo "QEMU : TEST TERMINE"
+          echo "=============================="
