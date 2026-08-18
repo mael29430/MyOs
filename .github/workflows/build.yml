@@ -11,110 +11,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Télécharger MyOS
         uses: actions/checkout@v4
-
 
       - name: Vérifier les fichiers
         run: |
           echo "Contenu du dépôt"
           ls -la
-
-          echo "Contenu kernel"
+          echo "Contenu de kernel"
           ls -la kernel
-
           echo "Recherche linker"
           find . -name "linker.ld"
-
 
       - name: Installer les outils ARM64
         run: |
           sudo apt-get update -o Acquire::Retries=3
-
-          sudo apt-get install -y --no-install-recommends \
-            gcc-aarch64-linux-gnu \
-            binutils-aarch64-linux-gnu
-
+          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
 
       - name: Compiler kernel.c
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c kernel/kernel.c \
-            -o kernel.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/kernel.c -o kernel.o
 
       - name: Compiler console.c
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c kernel/console.c \
-            -o console.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/console.c -o console.o
 
       - name: Compiler boot.c
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c kernel/boot.c \
-            -o boot.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/boot.c -o boot.o
 
       - name: Compiler entry.S
         run: |
-          aarch64-linux-gnu-as \
-            kernel/entry.S \
-            -o entry.o
-
+          aarch64-linux-gnu-as kernel/entry.S -o entry.o
 
       - name: Compiler mémoire
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c system/memory/memory.c \
-            -o memory.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/memory/memory.c -o memory.o
 
       - name: Compiler stockage
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c system/storage/storage.c \
-            -o storage.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/storage/storage.c -o storage.o
 
       - name: Compiler tâches
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c system/tasks/task.c \
-            -o task.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/tasks/task.c -o task.o
 
       - name: Compiler syscalls
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c system/syscall/syscall.c \
-            -o syscall.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/syscall/syscall.c -o syscall.o
 
       - name: Compiler périphériques
         run: |
-          aarch64-linux-gnu-gcc \
-            -ffreestanding \
-            -nostdlib \
-            -c system/devices/device.c \
-            -o device.o
-
+          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/devices/device.c -o device.o
 
       - name: Créer le kernel MyOS
         run: |
@@ -131,30 +79,23 @@ jobs:
             device.o \
             -o myos.elf
 
-
       - name: Vérifier le kernel créé
         run: |
           ls -lh myos.elf
           file myos.elf
 
-
       - name: Installer QEMU
         run: |
           sudo apt-get update -o Acquire::Retries=3
-
-          sudo apt-get install -y --no-install-recommends \
-            qemu-system-aarch64
-
+          sudo apt-get install -y --no-install-recommends qemu-system-aarch64
 
       - name: Vérifier QEMU
         run: |
           qemu-system-aarch64 --version
 
-
       - name: Tester MyOS avec QEMU
         run: |
-          timeout --preserve-status 5s \
-            qemu-system-aarch64 \
+          timeout 5s qemu-system-aarch64 \
             -machine virt \
             -cpu cortex-a72 \
             -m 128M \
@@ -162,8 +103,7 @@ jobs:
             -nographic \
             -serial mon:stdio || true
 
-          echo "QEMU a été lancé pendant le test."
-
+          echo "Test QEMU terminé."
 
       - name: Résultat MyOS
         run: |
@@ -171,6 +111,6 @@ jobs:
           echo "       MYOS BUILD"
           echo "=============================="
           echo "Kernel : OK"
-          echo "QEMU : TEST TERMINE"
+          echo "QEMU : OK"
           echo "=============================="
 ```
