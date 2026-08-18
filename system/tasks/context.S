@@ -1,9 +1,7 @@
 /*
  * MyOS - ARM64 Task Context
  *
- * Sauvegarde et restauration des registres callee-saved.
- *
- * Layout C :
+ * Layout :
  *
  *   +0   x19
  *   +8   x20
@@ -17,6 +15,8 @@
  *   +72  x28
  *   +80  sp
  *   +88  x30
+ *   +96  elr_el1
+ *   +104 spsr_el1
  */
 
 .section .text
@@ -28,10 +28,6 @@
 
 /*
  * int task_context_save(task_context_t *context)
- *
- * x0 = adresse du contexte
- *
- * Retourne 0.
  */
 task_context_save:
 
@@ -47,6 +43,19 @@ task_context_save:
     mov x1, x30
     str x1, [x0, #88]
 
+    /*
+     * Sauvegarde de l'adresse de retour
+     * de l'exception.
+     */
+    mrs x1, elr_el1
+    str x1, [x0, #96]
+
+    /*
+     * Sauvegarde de l'état du processeur.
+     */
+    mrs x1, spsr_el1
+    str x1, [x0, #104]
+
     mov x0, #0
 
     ret
@@ -54,8 +63,6 @@ task_context_save:
 
 /*
  * void task_context_restore(task_context_t *context)
- *
- * x0 = adresse du contexte
  */
 task_context_restore:
 
@@ -69,5 +76,19 @@ task_context_restore:
     mov sp, x1
 
     ldr x30, [x0, #88]
+
+    /*
+     * Restauration du PC d'exception.
+     */
+    ldr x1, [x0, #96]
+    msr elr_el1, x1
+
+    /*
+     * Restauration de l'état CPU.
+     */
+    ldr x1, [x0, #104]
+    msr spsr_el1, x1
+
+    isb
 
     ret
