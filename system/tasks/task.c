@@ -1,7 +1,7 @@
 /*
- * MyOS - Task Manager
+ * MyOS - ARM64 Task Manager
  *
- * ARM64 scheduler with independent task stacks.
+ * Préemption basée sur les exception frames ARM64.
  */
 
 #include <stdint.h>
@@ -14,25 +14,29 @@
 #define TASK_RUNNING  2
 #define TASK_BLOCKED  3
 
+#define EXCEPTION_FRAME_SIZE 272
+
+/*
+ * Layout du frame créé par vectors.S
+ *
+ * +0    x0
+ * +8    x1
+ * ...
+ * +240  x30
+ * +248  ELR_EL1
+ * +256  SPSR_EL1
+ *
+ * 264 octets utilisés.
+ * Le frame occupe 272 octets pour conserver
+ * l'alignement de pile ARM64.
+ */
 typedef struct
 {
-    uint64_t x19;
-    uint64_t x20;
-    uint64_t x21;
-    uint64_t x22;
-    uint64_t x23;
-    uint64_t x24;
-    uint64_t x25;
-    uint64_t x26;
-    uint64_t x27;
-    uint64_t x28;
-
-    uint64_t sp;
-    uint64_t x30;
-
+    uint64_t x[31];
     uint64_t elr_el1;
     uint64_t spsr_el1;
-} task_context_t;
+} exception_frame_t;
+
 
 typedef struct
 {
@@ -40,9 +44,12 @@ typedef struct
     uint64_t state;
     uint64_t ticks;
 
-    task_context_t context;
-
     uint8_t stack[TASK_STACK_SIZE];
+
+    /*
+     * Adresse du frame sauvegardé de cette tâche.
+     */
+    exception_frame_t *frame;
 
 } task_t;
 
@@ -50,27 +57,56 @@ typedef struct
 static task_t tasks[MAX_TASKS];
 
 static uint64_t task_count = 0;
-static uint64_t current_task = 0;
+
+/*
+ * MAX_TASKS signifie :
+ * aucune tâche réelle n'est encore active.
+ *
+ * Le kernel courant est alors le "bootstrap".
+ */
+static uint64_t current_task = MAX_TASKS;
+
 static uint64_t scheduler_ticks = 0;
 
 
 /*
- * Tâche de test.
- *
- * Pour cette étape elle reste volontairement
- * dans une boucle sûre.
+ * Compteurs simples pour vérifier que les tâches
+ * sont réellement exécutées.
  */
-static void task_test_entry(void)
+static volatile uint64_t task1_counter = 0;
+static volatile uint64_t task2_counter = 0;
+
+
+/*
+ * Première tâche de test.
+ */
+static void task1_entry(void)
 {
     for (;;)
     {
+        task1_counter++;
+
         __asm__ volatile("wfe");
     }
 }
 
 
 /*
- * Initialise le gestionnaire de tâches.
+ * Deuxième tâche de test.
+ */
+static void task2_entry(void)
+{
+    for (;;)
+    {
+        task2_counter++;
+
+        __asm__ volatile("wfe");
+    }
+}
+
+
+/*
+ * Initialise le gestionnaire.
  */
 void task_init(void)
 {
@@ -79,35 +115,94 @@ void task_init(void)
         tasks[i].id = 0;
         tasks[i].state = TASK_UNUSED;
         tasks[i].ticks = 0;
-
-        tasks[i].context.x19 = 0;
-        tasks[i].context.x20 = 0;
-        tasks[i].context.x21 = 0;
-        tasks[i].context.x22 = 0;
-        tasks[i].context.x23 = 0;
-        tasks[i].context.x24 = 0;
-        tasks[i].context.x25 = 0;
-        tasks[i].context.x26 = 0;
-        tasks[i].context.x27 = 0;
-        tasks[i].context.x28 = 0;
-
-        tasks[i].context.sp = 0;
-        tasks[i].context.x30 = 0;
-
-        tasks[i].context.elr_el1 = 0;
-        tasks[i].context.spsr_el1 = 0;
+        tasks[i].frame = 0;
     }
 
     task_count = 0;
-    current_task = 0;
+    current_task = MAX_TASKS;
     scheduler_ticks = 0;
+
+    task1_counter = 0;
+    task2_counter = 0;
 }
 
 
 /*
- * Crée une nouvelle tâche.
+ * Prépare le frame initial d'une tâche.
  */
-uint64_t task_create(void)
+static void task_prepare_frame(
+    task_t *task,
+    void (*entry)(void)
+)
+{
+    uint64_t stack_top =
+        (uint64_t)&task->stack[TASK_STACK_SIZE];
+
+    /*
+     * Alignement ARM64.
+     */
+    stack_top &= ~((uint64_t)0xF);
+
+    /*
+     * Le frame est placé en bas de la pile.
+     *
+     * Après restauration :
+     *
+     *     SP = frame + 272
+     *
+     * ce qui donne une pile alignée.
+     */
+    uint64_t frame_address =
+        stack_top - EXCEPTION_FRAME_SIZE;
+
+    frame_address &= ~((uint64_t)0xF);
+
+    task->frame =
+        (exception_frame_t *)frame_address;
+
+    /*
+     * Efface le frame.
+     */
+    for (uint64_t i = 0; i < 34; i++)
+    {
+        ((uint64_t *)task->frame)[i] = 0;
+    }
+
+    /*
+     * PC initial.
+     */
+    task->frame->elr_el1 =
+        (uint64_t)entry;
+
+    /*
+     * Retour en EL1h, AArch64.
+     *
+     * M[3:0] = 0101 = EL1h
+     *
+     * DAIF :
+     * D = 1
+     * A = 1
+     * I = 0  -> IRQ autorisées
+     * F = 1
+     *
+     * => 0x345
+     */
+    task->frame->spsr_el1 = 0x345;
+
+    /*
+     * La première instruction de la tâche
+     * utilisera une pile située juste après
+     * son frame.
+     */
+}
+
+
+/*
+ * Crée une tâche avec un point d'entrée.
+ */
+static uint64_t task_create_entry(
+    void (*entry)(void)
+)
 {
     if (task_count >= MAX_TASKS)
     {
@@ -118,53 +213,41 @@ uint64_t task_create(void)
     {
         if (tasks[i].state == TASK_UNUSED)
         {
-            uint64_t stack_top =
-                (uint64_t)&tasks[i].stack[TASK_STACK_SIZE];
-
-            /*
-             * ARM64 exige une pile alignée sur 16 octets.
-             */
-            stack_top &= ~((uint64_t)0xF);
-
             tasks[i].id = i + 1;
             tasks[i].state = TASK_READY;
             tasks[i].ticks = 0;
 
-            /*
-             * Contexte initial.
-             */
-            tasks[i].context.sp = stack_top;
-
-            tasks[i].context.x30 =
-                (uint64_t)task_test_entry;
-
-            tasks[i].context.elr_el1 =
-                (uint64_t)task_test_entry;
-
-            /*
-             * État initial du processeur.
-             *
-             * Il ne sera utilisé pour ERET
-             * qu'après validation de l'étape suivante.
-             */
-            tasks[i].context.spsr_el1 = 0;
+            task_prepare_frame(
+                &tasks[i],
+                entry
+            );
 
             task_count++;
-
-            /*
-             * Première tâche = tâche courante.
-             */
-            if (task_count == 1)
-            {
-                current_task = i;
-                tasks[i].state = TASK_RUNNING;
-            }
 
             return tasks[i].id;
         }
     }
 
     return 0;
+}
+
+
+/*
+ * API publique conservée.
+ */
+uint64_t task_create(void)
+{
+    return task_create_entry(task1_entry);
+}
+
+
+/*
+ * Crée les deux tâches de démonstration.
+ */
+void task_create_test_tasks(void)
+{
+    task_create_entry(task1_entry);
+    task_create_entry(task2_entry);
 }
 
 
@@ -201,7 +284,7 @@ void task_block(uint64_t id)
 
 
 /*
- * Choisit la prochaine tâche READY.
+ * Sélectionne la prochaine tâche READY.
  */
 uint64_t task_schedule(void)
 {
@@ -210,18 +293,35 @@ uint64_t task_schedule(void)
         return 0;
     }
 
+    /*
+     * Premier passage depuis le bootstrap :
+     * commencer par la tâche 0.
+     */
+    uint64_t start;
+
+    if (current_task >= MAX_TASKS)
+    {
+        start = MAX_TASKS - 1;
+    }
+    else
+    {
+        start = current_task;
+    }
+
     for (uint64_t offset = 1;
          offset <= MAX_TASKS;
          offset++)
     {
         uint64_t index =
-            (current_task + offset) % MAX_TASKS;
+            (start + offset) % MAX_TASKS;
 
         if (tasks[index].state == TASK_READY)
         {
-            if (tasks[current_task].state == TASK_RUNNING)
+            if (current_task < MAX_TASKS &&
+                tasks[current_task].state == TASK_RUNNING)
             {
-                tasks[current_task].state = TASK_READY;
+                tasks[current_task].state =
+                    TASK_READY;
             }
 
             current_task = index;
@@ -233,16 +333,25 @@ uint64_t task_schedule(void)
         }
     }
 
-    return tasks[current_task].id;
+    /*
+     * Si aucune autre tâche n'est prête,
+     * conserver la tâche actuelle.
+     */
+    if (current_task < MAX_TASKS)
+    {
+        return tasks[current_task].id;
+    }
+
+    return 0;
 }
 
 
 /*
- * Retourne la tâche courante.
+ * Retourne l'ID de la tâche courante.
  */
 uint64_t task_current(void)
 {
-    if (task_count == 0)
+    if (current_task >= MAX_TASKS)
     {
         return 0;
     }
@@ -252,24 +361,19 @@ uint64_t task_current(void)
 
 
 /*
- * Appelé à chaque tick.
+ * Tick scheduler.
  */
 void task_tick(void)
 {
     scheduler_ticks++;
 
-    if (task_count == 0)
+    if (current_task < MAX_TASKS)
     {
-        return;
+        tasks[current_task].ticks++;
     }
-
-    tasks[current_task].ticks++;
 }
 
 
-/*
- * Nombre total de ticks.
- */
 uint64_t task_get_ticks(void)
 {
     return scheduler_ticks;
@@ -277,63 +381,91 @@ uint64_t task_get_ticks(void)
 
 
 /*
- * Sauvegarde du contexte.
+ * Copie un frame de 272 octets.
  */
-extern int task_context_save(task_context_t *context);
-
-int task_save_current_context(void)
+static void task_copy_frame(
+    exception_frame_t *destination,
+    const exception_frame_t *source
+)
 {
-    if (task_count == 0)
-    {
-        return -1;
-    }
+    const uint64_t *src =
+        (const uint64_t *)source;
 
-    return task_context_save(
-        &tasks[current_task].context
-    );
+    uint64_t *dst =
+        (uint64_t *)destination;
+
+    /*
+     * 272 / 8 = 34 mots.
+     */
+    for (uint64_t i = 0; i < 34; i++)
+    {
+        dst[i] = src[i];
+    }
 }
 
 
 /*
- * Restauration du contexte.
+ * Vrai changement de contexte.
  *
- * Pas encore appelée depuis l'IRQ :
- * cette connexion sera faite dans l'étape suivante.
+ * Retourne l'adresse du frame que vectors.S
+ * doit restaurer.
  */
-extern void task_context_restore(task_context_t *context);
-
-void task_restore_current_context(void)
+void *task_switch_frame(void *frame)
 {
-    if (task_count == 0)
+    /*
+     * Aucun task actif :
+     * on démarre la première tâche.
+     */
+    if (current_task >= MAX_TASKS)
     {
-        return;
-    }
-
-    task_context_restore(
-        &tasks[current_task].context
-    );
-}
-
-
-/*
- * Sélectionne la prochaine tâche.
- */
-uint64_t task_switch(void)
-{
-    uint64_t old_task = task_current();
-
-    uint64_t new_task =
         task_schedule();
 
-    if (new_task == 0)
-    {
-        return 0;
+        if (current_task < MAX_TASKS)
+        {
+            return tasks[current_task].frame;
+        }
+
+        return frame;
     }
 
-    if (old_task == new_task)
+    /*
+     * Sauvegarde de la tâche actuelle.
+     */
+    task_copy_frame(
+        tasks[current_task].frame,
+        (const exception_frame_t *)frame
+    );
+
+    /*
+     * Choisit la suivante.
+     */
+    uint64_t next =
+        task_schedule();
+
+    if (next == 0)
     {
-        return new_task;
+        return frame;
     }
 
-    return new_task;
+    /*
+     * Retourne directement le frame de
+     * la nouvelle tâche.
+     */
+    return tasks[current_task].frame;
+}
+
+
+/*
+ * Ces deux fonctions restent disponibles
+ * pour le reste du kernel.
+ */
+uint64_t task1_get_counter(void)
+{
+    return task1_counter;
+}
+
+
+uint64_t task2_get_counter(void)
+{
+    return task2_counter;
 }
