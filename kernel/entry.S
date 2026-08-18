@@ -9,26 +9,27 @@ _start:
      */
 
     /*
-     * Initialisation de la pile.
+     * Mettre la pile au sommet
+     * de l'espace réservé.
      */
 
     ldr x0, =stack_top
     mov sp, x0
 
     /*
-     * Appel du kernel principal en C.
+     * Appeler le kernel principal.
      */
 
     bl kernel_main
 
     /*
-     * Si kernel_main retourne,
-     * on reste dans une boucle infinie.
+     * kernel_main ne devrait jamais
+     * retourner.
      */
 
-1:
+halt:
     wfe
-    b 1b
+    b halt
 
 
 .section .bss
@@ -42,7 +43,7 @@ _start:
 stack:
 
     /*
-     * Réserve 16 Ko pour la pile.
+     * 16 Ko de pile.
      */
 
     .skip 16384
