@@ -1,8 +1,44 @@
 /*
  * MyOS - ARM64 Exception Vectors
  *
- * Sauvegarde complète des registres généraux lors
- * d'une exception avant d'appeler le gestionnaire C.
+ * Exception frame :
+ *
+ *   +0    x0
+ *   +8    x1
+ *   +16   x2
+ *   +24   x3
+ *   +32   x4
+ *   +40   x5
+ *   +48   x6
+ *   +56   x7
+ *   +64   x8
+ *   +72   x9
+ *   +80   x10
+ *   +88   x11
+ *   +96   x12
+ *   +104  x13
+ *   +112  x14
+ *   +120  x15
+ *   +128  x16
+ *   +136  x17
+ *   +144  x18
+ *   +152  x19
+ *   +160  x20
+ *   +168  x21
+ *   +176  x22
+ *   +184  x23
+ *   +192  x24
+ *   +200  x25
+ *   +208  x26
+ *   +216  x27
+ *   +224  x28
+ *   +232  x29
+ *   +240  x30
+ *   +248  ELR_EL1
+ *   +256  SPSR_EL1
+ *
+ * Total : 264 octets
+ * Alignement : 16 octets
  */
 
 .section .text
@@ -14,49 +50,45 @@
 .extern interrupt_handler
 
 
-/*
- * ARM64 exception vector table
- *
- * Chaque entrée occupe 128 octets.
- */
-
 exception_vectors:
 
-    /* Current EL using SP0 */
+    /*
+     * Current EL using SP0
+     */
     b exception_vector_entry
     .space 124
 
-    /* Current EL using SPx */
+    /*
+     * Current EL using SPx
+     */
     b exception_vector_entry
     .space 124
 
-    /* Lower EL using AArch64 */
+    /*
+     * Lower EL using AArch64
+     */
     b exception_vector_entry
     .space 124
 
-    /* Lower EL using AArch32 */
+    /*
+     * Lower EL using AArch32
+     */
     b exception_vector_entry
     .space 124
 
-
-/*
- * Exception entry
- *
- * On sauvegarde x0-x29 et x30.
- *
- * Taille :
- *   31 registres × 8 octets = 248 octets
- *
- * On ajoute 8 octets pour garder la pile alignée
- * sur 16 octets.
- */
 
 exception_vector_entry:
 
-    sub sp, sp, #256
+    /*
+     * Réserve 272 octets.
+     *
+     * 264 octets de données
+     * + 8 octets de marge pour garder SP aligné.
+     */
+    sub sp, sp, #272
 
     /*
-     * Sauvegarde x0-x29.
+     * Sauvegarde x0-x30.
      */
 
     stp x0,  x1,  [sp, #0]
@@ -73,28 +105,41 @@ exception_vector_entry:
     stp x22, x23, [sp, #176]
     stp x24, x25, [sp, #192]
     stp x26, x27, [sp, #208]
-
-    /*
-     * x28 / x29
-     */
     stp x28, x29, [sp, #224]
 
-    /*
-     * x30 = link register.
-     * Le dernier emplacement reste disponible
-     * pour garder le cadre aligné.
-     */
     str x30, [sp, #240]
 
     /*
-     * Appel du gestionnaire C.
+     * Sauvegarde du PC et de l'état CPU.
+     */
+    mrs x0, elr_el1
+    str x0, [sp, #248]
+
+    mrs x0, spsr_el1
+    str x0, [sp, #256]
+
+    /*
+     * x0 = adresse du frame.
+     */
+    mov x0, sp
+
+    /*
+     * Gestionnaire C.
      */
     bl interrupt_handler
 
     /*
-     * Restauration x0-x29.
+     * Restauration de ELR_EL1 et SPSR_EL1.
      */
+    ldr x0, [sp, #248]
+    msr elr_el1, x0
 
+    ldr x0, [sp, #256]
+    msr spsr_el1, x0
+
+    /*
+     * Restauration x0-x30.
+     */
     ldp x0,  x1,  [sp, #0]
     ldp x2,  x3,  [sp, #16]
     ldp x4,  x5,  [sp, #32]
@@ -109,19 +154,17 @@ exception_vector_entry:
     ldp x22, x23, [sp, #176]
     ldp x24, x25, [sp, #192]
     ldp x26, x27, [sp, #208]
+
     ldp x28, x29, [sp, #224]
 
-    /*
-     * Restauration de x30.
-     */
     ldr x30, [sp, #240]
 
     /*
-     * Libération du cadre.
+     * Libère le frame.
      */
-    add sp, sp, #256
+    add sp, sp, #272
 
     /*
-     * Retour depuis l'exception.
+     * Retour d'exception.
      */
     eret
