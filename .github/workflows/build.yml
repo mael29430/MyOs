@@ -1,3 +1,4 @@
+```yaml
 name: Build MyOS Kernel
 
 "on":
@@ -82,5 +83,22 @@ jobs:
           ls -lh myos.elf
           file myos.elf
 
+      - name: Installer QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-aarch64
+
+      - name: Vérifier QEMU
+        run: |
+          qemu-system-aarch64 --version
+
       - name: Résultat
-        run: echo "Kernel MyOS compilé avec succès"
+        run: |
+          echo "=============================="
+          echo "       MYOS BUILD OK"
+          echo "=============================="
+          echo "Kernel : OK"
+          echo "myos.elf : OK"
+          echo "QEMU : OK"
+          echo "=============================="
+```
