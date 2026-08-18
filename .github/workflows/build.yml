@@ -1,12 +1,16 @@
-```yaml
+name: Test 
+```yaml id="8h7n5m"
 name: Test
 
 "on":
   push:
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "OK"
+      - name: Test
+        run: echo "OK"
 ```
