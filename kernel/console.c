@@ -1,40 +1,31 @@
 /*
  * MyOS Console
  *
- * Console série minimale pour QEMU.
+ * Console série PL011 pour QEMU virt.
  */
 
 #define UART_BASE 0x09000000UL
 
 #define UART_DR (*(volatile unsigned int *)(UART_BASE + 0x00))
+#define UART_FR (*(volatile unsigned int *)(UART_BASE + 0x18))
 
+#define UART_FR_TXFF (1 << 5)
 
-/*
- * Initialise la console.
- *
- * Pour QEMU "virt", l'UART est déjà
- * suffisamment configuré pour notre
- * premier test.
- */
 
 void console_init(void)
 {
 }
 
 
-/*
- * Écrit un caractère sur la console.
- */
-
 static void console_putc(char c)
 {
+    while (UART_FR & UART_FR_TXFF)
+    {
+    }
+
     UART_DR = (unsigned int)c;
 }
 
-
-/*
- * Écrit une chaîne de caractères.
- */
 
 void console_write(const char *text)
 {
