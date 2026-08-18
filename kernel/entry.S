@@ -5,16 +5,18 @@
 _start:
 
     /*
+     * Point d'entrée de MyOS.
+     */
+
+    /*
      * Initialisation de la pile.
-     * La pile sera placée à une adresse temporaire
-     * dans la RAM de la machine virtuelle QEMU.
      */
 
     ldr x0, =stack_top
     mov sp, x0
 
     /*
-     * Appel du kernel C.
+     * Appel du kernel principal en C.
      */
 
     bl kernel_main
@@ -31,9 +33,17 @@ _start:
 
 .section .bss
 
+/*
+ * Alignement de la pile sur 4096 octets.
+ */
+
 .align 12
 
 stack:
+
+    /*
+     * Réserve 16 Ko pour la pile.
+     */
 
     .skip 16384
 
