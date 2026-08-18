@@ -2,10 +2,11 @@ ENTRY(_start)
 
 SECTIONS
 {
-    . = 0x400000;
+    . = 0x40000000;
 
     .text :
     {
+        KEEP(*(.text._start))
         *(.text*)
     }
 
@@ -21,17 +22,7 @@ SECTIONS
 
     .bss :
     {
-        . = ALIGN(16);
-        __bss_start = .;
-
         *(.bss*)
         *(COMMON)
-
-        . = ALIGN(16);
-        __bss_end = .;
     }
-
-    . = ALIGN(16);
-
-    __kernel_end = .;
 }
