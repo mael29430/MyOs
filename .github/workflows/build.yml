@@ -1,7 +1,7 @@
 ```yaml
 name: Build MyOS Kernel
 
-"on":
+on:
   push:
     branches:
       - main
@@ -11,16 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Télécharger MyOS
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Vérifier les fichiers
         run: |
-          echo "Contenu du dépôt"
           ls -la
-          echo "Contenu de kernel"
           ls -la kernel
-          echo "Recherche linker"
           find . -name "linker.ld"
 
       - name: Installer les outils ARM64
@@ -64,19 +61,9 @@ jobs:
         run: |
           aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/devices/device.c -o device.o
 
-      - name: Créer le kernel MyOS
+      - name: Créer le kernel
         run: |
-          aarch64-linux-gnu-ld -T kernel/linker.ld \
-            entry.o \
-            boot.o \
-            kernel.o \
-            console.o \
-            memory.o \
-            storage.o \
-            task.o \
-            syscall.o \
-            device.o \
-            -o myos.elf
+          aarch64-linux-gnu-ld -T kernel/linker.ld entry.o boot.o kernel.o console.o memory.o storage.o task.o syscall.o device.o -o myos.elf
 
       - name: Vérifier le kernel
         run: |
@@ -93,12 +80,5 @@ jobs:
           qemu-system-aarch64 --version
 
       - name: Résultat
-        run: |
-          echo "=============================="
-          echo "       MYOS BUILD OK"
-          echo "=============================="
-          echo "Kernel : OK"
-          echo "myos.elf : OK"
-          echo "QEMU : OK"
-          echo "=============================="
+        run: echo "MyOS et QEMU sont prêts"
 ```
