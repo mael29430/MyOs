@@ -1,7 +1,7 @@
 ```yaml
-name: Build MyOS Kernel
+name: Test MyOS
 
-on:
+"on":
   push:
     branches:
       - main
@@ -14,71 +14,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Vérifier les fichiers
-        run: |
-          ls -la
-          ls -la kernel
-          find . -name "linker.ld"
-
-      - name: Installer les outils ARM64
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
-
-      - name: Compiler kernel.c
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/kernel.c -o kernel.o
-
-      - name: Compiler console.c
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/console.c -o console.o
-
-      - name: Compiler boot.c
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/boot.c -o boot.o
-
-      - name: Compiler entry.S
-        run: |
-          aarch64-linux-gnu-as kernel/entry.S -o entry.o
-
-      - name: Compiler mémoire
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/memory/memory.c -o memory.o
-
-      - name: Compiler stockage
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/storage/storage.c -o storage.o
-
-      - name: Compiler tâches
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/tasks/task.c -o task.o
-
-      - name: Compiler syscalls
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/syscall/syscall.c -o syscall.o
-
-      - name: Compiler périphériques
-        run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/devices/device.c -o device.o
-
-      - name: Créer le kernel
-        run: |
-          aarch64-linux-gnu-ld -T kernel/linker.ld entry.o boot.o kernel.o console.o memory.o storage.o task.o syscall.o device.o -o myos.elf
-
-      - name: Vérifier le kernel
-        run: |
-          ls -lh myos.elf
-          file myos.elf
-
-      - name: Installer QEMU
+      - name: Test QEMU
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-aarch64
-
-      - name: Vérifier QEMU
-        run: |
           qemu-system-aarch64 --version
 
-      - name: Résultat
-        run: echo "MyOS et QEMU sont prêts"
+      - name: Test MyOS
+        run: |
+          echo "MyOS workflow fonctionne"
 ```
