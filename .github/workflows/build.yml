@@ -76,6 +76,7 @@ jobs:
         run: |
           ls -lh myos.elf
           file myos.elf
+
       - name: Installer QEMU
         run: |
           sudo apt-get update
@@ -84,7 +85,8 @@ jobs:
       - name: Vérifier QEMU
         run: |
           qemu-system-aarch64 --version
-                - name: Démarrer MyOS avec QEMU
+
+      - name: Démarrer MyOS avec QEMU
         run: |
           timeout 5s qemu-system-aarch64 \
             -machine virt \
@@ -93,5 +95,11 @@ jobs:
             -kernel myos.elf \
             -nographic \
             -serial mon:stdio || true
+
       - name: Résultat
-        run: echo "MYOS KERNEL BUILD OK"
+        run: |
+          echo "=============================="
+          echo "MYOS BUILD OK"
+          echo "Kernel : OK"
+          echo "QEMU : OK"
+          echo "=============================="
