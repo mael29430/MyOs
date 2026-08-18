@@ -1,7 +1,22 @@
 /*
  * MyOS - ARM64 Task Context
  *
- * Sauvegarde et restauration du contexte CPU.
+ * Sauvegarde et restauration des registres callee-saved.
+ *
+ * Layout C :
+ *
+ *   +0   x19
+ *   +8   x20
+ *   +16  x21
+ *   +24  x22
+ *   +32  x23
+ *   +40  x24
+ *   +48  x25
+ *   +56  x26
+ *   +64  x27
+ *   +72  x28
+ *   +80  sp
+ *   +88  x30
  */
 
 .section .text
@@ -10,13 +25,13 @@
 .global task_context_save
 .global task_context_restore
 
+
 /*
- * task_context_save
+ * int task_context_save(task_context_t *context)
  *
- * x0 = adresse du contexte à sauvegarder
+ * x0 = adresse du contexte
  *
- * Sauvegarde les registres généraux utilisés
- * par une tâche.
+ * Retourne 0.
  */
 task_context_save:
 
@@ -33,13 +48,14 @@ task_context_save:
     str x1, [x0, #88]
 
     mov x0, #0
+
     ret
 
 
 /*
- * task_context_restore
+ * void task_context_restore(task_context_t *context)
  *
- * x0 = adresse du contexte à restaurer.
+ * x0 = adresse du contexte
  */
 task_context_restore:
 
