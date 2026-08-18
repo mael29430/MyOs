@@ -5,6 +5,12 @@
  * du kernel.
  */
 
+#define UART0_BASE 0x09000000UL
+
+volatile unsigned int* const UART0 =
+    (volatile unsigned int*)UART0_BASE;
+
+
 void console_init(void)
 {
     /*
@@ -16,8 +22,9 @@ void console_init(void)
 
 void console_write(const char* text)
 {
-    /*
-     * Affichage futur des messages
-     * du système.
-     */
+    while (*text)
+    {
+        *UART0 = *text;
+        text++;
+    }
 }
