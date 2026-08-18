@@ -1,4 +1,4 @@
- id="8h7n5m"
+```yaml
 name: Test
 
 "on":
@@ -12,4 +12,3 @@ jobs:
     steps:
       - name: Test
         run: echo "OK"
-```
