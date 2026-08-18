@@ -1,17 +1,11 @@
-/*
- * MyOS - Task Manager
- *
- * Scheduler ARM64
- */
-
 #include <stdint.h>
 
 #define MAX_TASKS 16
 
-#define TASK_UNUSED  0
-#define TASK_READY   1
-#define TASK_RUNNING 2
-#define TASK_BLOCKED 3
+#define TASK_UNUSED   0
+#define TASK_READY    1
+#define TASK_RUNNING  2
+#define TASK_BLOCKED  3
 
 typedef struct
 {
@@ -27,6 +21,8 @@ typedef struct
     uint64_t x28;
     uint64_t sp;
     uint64_t x30;
+    uint64_t elr_el1;
+    uint64_t spsr_el1;
 } task_context_t;
 
 typedef struct
@@ -34,7 +30,6 @@ typedef struct
     uint64_t id;
     uint64_t state;
     uint64_t ticks;
-
     task_context_t context;
 } task_t;
 
@@ -47,10 +42,6 @@ static uint64_t scheduler_ticks = 0;
 extern int task_context_save(task_context_t *context);
 extern void task_context_restore(task_context_t *context);
 
-
-/*
- * Initialise le gestionnaire de tâches.
- */
 void task_init(void)
 {
     for (uint64_t i = 0; i < MAX_TASKS; i++)
@@ -71,6 +62,8 @@ void task_init(void)
         tasks[i].context.x28 = 0;
         tasks[i].context.sp = 0;
         tasks[i].context.x30 = 0;
+        tasks[i].context.elr_el1 = 0;
+        tasks[i].context.spsr_el1 = 0;
     }
 
     task_count = 0;
@@ -78,10 +71,6 @@ void task_init(void)
     scheduler_ticks = 0;
 }
 
-
-/*
- * Crée une tâche.
- */
 uint64_t task_create(void)
 {
     if (task_count >= MAX_TASKS)
@@ -99,6 +88,12 @@ uint64_t task_create(void)
 
             task_count++;
 
+            if (task_count == 1)
+            {
+                current_task = i;
+                tasks[i].state = TASK_RUNNING;
+            }
+
             return tasks[i].id;
         }
     }
@@ -106,10 +101,6 @@ uint64_t task_create(void)
     return 0;
 }
 
-
-/*
- * Met une tâche en READY.
- */
 void task_ready(uint64_t id)
 {
     for (uint64_t i = 0; i < MAX_TASKS; i++)
@@ -122,10 +113,6 @@ void task_ready(uint64_t id)
     }
 }
 
-
-/*
- * Bloque une tâche.
- */
 void task_block(uint64_t id)
 {
     for (uint64_t i = 0; i < MAX_TASKS; i++)
@@ -138,10 +125,6 @@ void task_block(uint64_t id)
     }
 }
 
-
-/*
- * Choisit la prochaine tâche.
- */
 uint64_t task_schedule(void)
 {
     if (task_count == 0)
@@ -171,10 +154,6 @@ uint64_t task_schedule(void)
     return tasks[current_task].id;
 }
 
-
-/*
- * Retourne la tâche actuelle.
- */
 uint64_t task_current(void)
 {
     if (task_count == 0)
@@ -185,10 +164,6 @@ uint64_t task_current(void)
     return tasks[current_task].id;
 }
 
-
-/*
- * Appelé à chaque tick du timer.
- */
 void task_tick(void)
 {
     scheduler_ticks++;
@@ -201,19 +176,11 @@ void task_tick(void)
     tasks[current_task].ticks++;
 }
 
-
-/*
- * Retourne le nombre de ticks du scheduler.
- */
 uint64_t task_get_ticks(void)
 {
     return scheduler_ticks;
 }
 
-
-/*
- * Sauvegarde le contexte de la tâche actuelle.
- */
 int task_save_current_context(void)
 {
     if (task_count == 0)
@@ -226,10 +193,6 @@ int task_save_current_context(void)
     );
 }
 
-
-/*
- * Restaure le contexte de la tâche actuelle.
- */
 void task_restore_current_context(void)
 {
     if (task_count == 0)
@@ -242,13 +205,6 @@ void task_restore_current_context(void)
     );
 }
 
-
-/*
- * Effectue une sélection de tâche.
- *
- * Pour cette première version, on sélectionne
- * simplement la prochaine tâche READY.
- */
 uint64_t task_switch(void)
 {
     uint64_t old_task = task_current();
@@ -259,10 +215,6 @@ uint64_t task_switch(void)
         return 0;
     }
 
-    /*
-     * Si aucune autre tâche n'est disponible,
-     * on reste sur la tâche actuelle.
-     */
     if (old_task == new_task)
     {
         return new_task;
