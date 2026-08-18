@@ -1,5 +1,7 @@
 /*
  * MyOS - ARM64 Generic Timer
+ *
+ * Virtual timer for AArch64 / QEMU virt.
  */
 
 #include <stdint.h>
@@ -21,8 +23,9 @@ static inline uint64_t timer_read_counter(void)
     return value;
 }
 
+
 /*
- * Lire la fréquence du timer.
+ * Lire la fréquence du compteur.
  */
 static inline uint64_t timer_read_frequency(void)
 {
@@ -36,10 +39,11 @@ static inline uint64_t timer_read_frequency(void)
     return value;
 }
 
+
 /*
  * Programmer la prochaine interruption.
  */
-static inline void timer_set_compare(uint64_t value)
+static inline void timer_write_compare(uint64_t value)
 {
     __asm__ volatile(
         "msr cntv_cval_el0, %0"
@@ -50,8 +54,13 @@ static inline void timer_set_compare(uint64_t value)
     __asm__ volatile("isb");
 }
 
+
 /*
  * Activer le timer virtuel.
+ *
+ * CNTV_CTL_EL0 :
+ * bit 0 = ENABLE
+ * bit 1 = IMASK
  */
 static inline void timer_enable(void)
 {
@@ -66,86 +75,136 @@ static inline void timer_enable(void)
     __asm__ volatile("isb");
 }
 
+
 /*
- * Programmer le prochain tick.
+ * Désactiver le timer.
  */
-static void timer_program_next(void)
+static inline void timer_disable(void)
+{
+    uint64_t control = 0ULL;
+
+    __asm__ volatile(
+        "msr cntv_ctl_el0, %0"
+        :
+        : "r"(control)
+    );
+
+    __asm__ volatile("isb");
+}
+
+
+/*
+ * Programme la prochaine échéance du timer.
+ */
+static void timer_schedule_next(void)
 {
     uint64_t frequency = timer_read_frequency();
 
     if (frequency == 0)
+    {
         return;
+    }
 
     uint64_t interval =
         (frequency * TIMER_INTERVAL_MS) / 1000ULL;
 
-    uint64_t now = timer_read_counter();
+    if (interval == 0)
+    {
+        interval = 1;
+    }
 
-    timer_set_compare(now + interval);
+    uint64_t now =
+        timer_read_counter();
+
+    timer_write_compare(now + interval);
 }
 
+
 /*
- * Initialisation du timer.
+ * Initialise le timer ARM64.
  */
 void timer_init(void)
 {
-    uint64_t frequency = timer_read_frequency();
+    uint64_t frequency =
+        timer_read_frequency();
 
     if (frequency == 0)
+    {
         return;
+    }
 
-    timer_program_next();
+    timer_disable();
+
+    timer_schedule_next();
+
     timer_enable();
 }
 
+
 /*
- * Appelé lorsqu'un tick du timer est traité.
+ * Réarme le timer après une interruption.
  *
- * On reprogramme le prochain événement.
+ * Cette fonction doit être appelée par
+ * le gestionnaire d'interruptions après
+ * avoir traité le tick.
  */
 void timer_tick(void)
 {
-    timer_program_next();
+    timer_schedule_next();
 }
 
+
 /*
- * Nombre de ticks du compteur ARM64.
+ * Retourne le compteur ARM64.
  */
 uint64_t timer_ticks(void)
 {
     return timer_read_counter();
 }
 
+
 /*
- * Fréquence du timer.
+ * Retourne la fréquence du compteur.
  */
 uint64_t timer_frequency(void)
 {
     return timer_read_frequency();
 }
 
+
 /*
- * Temps écoulé en millisecondes.
+ * Retourne le temps écoulé en millisecondes.
  */
 uint64_t timer_milliseconds(void)
 {
-    uint64_t frequency = timer_read_frequency();
+    uint64_t frequency =
+        timer_read_frequency();
 
     if (frequency == 0)
+    {
         return 0;
+    }
 
-    return (timer_read_counter() * 1000ULL) / frequency;
+    return
+        (timer_read_counter() * 1000ULL)
+        / frequency;
 }
 
+
 /*
- * Temps écoulé en secondes.
+ * Retourne le temps écoulé en secondes.
  */
 uint64_t timer_seconds(void)
 {
-    uint64_t frequency = timer_read_frequency();
+    uint64_t frequency =
+        timer_read_frequency();
 
     if (frequency == 0)
+    {
         return 0;
+    }
 
-    return timer_read_counter() / frequency;
+    return
+        timer_read_counter()
+        / frequency;
 }
