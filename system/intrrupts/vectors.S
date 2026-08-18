@@ -5,40 +5,12 @@
  *
  *   +0    x0
  *   +8    x1
- *   +16   x2
- *   +24   x3
- *   +32   x4
- *   +40   x5
- *   +48   x6
- *   +56   x7
- *   +64   x8
- *   +72   x9
- *   +80   x10
- *   +88   x11
- *   +96   x12
- *   +104  x13
- *   +112  x14
- *   +120  x15
- *   +128  x16
- *   +136  x17
- *   +144  x18
- *   +152  x19
- *   +160  x20
- *   +168  x21
- *   +176  x22
- *   +184  x23
- *   +192  x24
- *   +200  x25
- *   +208  x26
- *   +216  x27
- *   +224  x28
- *   +232  x29
+ *   ...
  *   +240  x30
  *   +248  ELR_EL1
  *   +256  SPSR_EL1
  *
- * Total : 264 octets
- * Alignement : 16 octets
+ * Frame size = 272 bytes
  */
 
 .section .text
@@ -80,17 +52,13 @@ exception_vectors:
 exception_vector_entry:
 
     /*
-     * Réserve 272 octets.
-     *
-     * 264 octets de données
-     * + 8 octets de marge pour garder SP aligné.
+     * Réserve le frame.
      */
     sub sp, sp, #272
 
     /*
      * Sauvegarde x0-x30.
      */
-
     stp x0,  x1,  [sp, #0]
     stp x2,  x3,  [sp, #16]
     stp x4,  x5,  [sp, #32]
@@ -110,35 +78,49 @@ exception_vector_entry:
     str x30, [sp, #240]
 
     /*
-     * Sauvegarde du PC et de l'état CPU.
+     * Sauvegarde PC.
      */
     mrs x0, elr_el1
     str x0, [sp, #248]
 
+    /*
+     * Sauvegarde SPSR.
+     */
     mrs x0, spsr_el1
     str x0, [sp, #256]
 
     /*
-     * x0 = adresse du frame.
+     * x0 = frame courant.
      */
     mov x0, sp
 
     /*
-     * Gestionnaire C.
+     * Le handler retourne dans x0
+     * l'adresse du frame à restaurer.
      */
     bl interrupt_handler
 
     /*
-     * Restauration de ELR_EL1 et SPSR_EL1.
+     * x0 = nouveau frame.
+     *
+     * On change maintenant de pile d'exception.
+     */
+    mov sp, x0
+
+    /*
+     * Restaurer ELR_EL1.
      */
     ldr x0, [sp, #248]
     msr elr_el1, x0
 
+    /*
+     * Restaurer SPSR_EL1.
+     */
     ldr x0, [sp, #256]
     msr spsr_el1, x0
 
     /*
-     * Restauration x0-x30.
+     * Restaurer les registres.
      */
     ldp x0,  x1,  [sp, #0]
     ldp x2,  x3,  [sp, #16]
@@ -160,11 +142,8 @@ exception_vector_entry:
     ldr x30, [sp, #240]
 
     /*
-     * Libère le frame.
+     * Retour à la tâche.
      */
     add sp, sp, #272
 
-    /*
-     * Retour d'exception.
-     */
     eret
