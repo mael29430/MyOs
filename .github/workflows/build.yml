@@ -12,50 +12,115 @@ jobs:
 
       - name: Vérifier les fichiers
         run: |
+          echo "Contenu du dépôt"
           ls -la
+
+          echo "Contenu de kernel"
           ls -la kernel
+
+          echo "Recherche linker"
           find . -name "linker.ld"
 
       - name: Installer les outils ARM64
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            binutils-aarch64-linux-gnu
 
       - name: Compiler kernel.c
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/kernel.c -o kernel.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c kernel/kernel.c \
+            -o kernel.o
 
       - name: Compiler console.c
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/console.c -o console.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c kernel/console.c \
+            -o console.o
 
       - name: Compiler boot.c
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c kernel/boot.c -o boot.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c kernel/boot.c \
+            -o boot.o
 
       - name: Compiler entry.S
         run: |
-          aarch64-linux-gnu-as kernel/entry.S -o entry.o
+          aarch64-linux-gnu-as \
+            kernel/entry.S \
+            -o entry.o
 
       - name: Compiler mémoire
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/memory/memory.c -o memory.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/memory/memory.c \
+            -o memory.o
+
+      - name: Compiler interruptions
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/interrupts/interrupt.c \
+            -o interrupt.o
+
+      - name: Compiler timer
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/timer/timer.c \
+            -o timer.o
 
       - name: Compiler stockage
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/storage/storage.c -o storage.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/storage/storage.c \
+            -o storage.o
 
       - name: Compiler tâches
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/tasks/task.c -o task.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/tasks/task.c \
+            -o task.o
 
       - name: Compiler syscalls
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/syscall/syscall.c -o syscall.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/syscall/syscall.c \
+            -o syscall.o
 
       - name: Compiler périphériques
         run: |
-          aarch64-linux-gnu-gcc -ffreestanding -nostdlib -c system/devices/device.c -o device.o
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/devices/device.c \
+            -o device.o
+
+      - name: Compiler système de fichiers
+        run: |
+          aarch64-linux-gnu-gcc \
+            -ffreestanding \
+            -nostdlib \
+            -c system/filesystem/filesystem.c \
+            -o filesystem.o
 
       - name: Créer le kernel MyOS
         run: |
@@ -66,13 +131,16 @@ jobs:
             kernel.o \
             console.o \
             memory.o \
+            interrupt.o \
+            timer.o \
             storage.o \
             task.o \
             syscall.o \
             device.o \
+            filesystem.o \
             -o myos.elf
 
-      - name: Vérifier le kernel
+      - name: Vérifier le kernel créé
         run: |
           ls -lh myos.elf
           file myos.elf
@@ -96,10 +164,19 @@ jobs:
             -nographic \
             -serial mon:stdio || true
 
-      - name: Résultat
+      - name: Résultat MyOS
         run: |
           echo "=============================="
-          echo "MYOS BUILD OK"
+          echo "        MYOS BUILD OK"
+          echo "=============================="
           echo "Kernel : OK"
+          echo "Memory : OK"
+          echo "Interruptions : OK"
+          echo "Timer : OK"
+          echo "Tasks : OK"
+          echo "Devices : OK"
+          echo "Storage : OK"
+          echo "File system : OK"
+          echo "Syscalls : OK"
           echo "QEMU : OK"
           echo "=============================="
